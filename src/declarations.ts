@@ -85,9 +85,10 @@ interface FormRecordFieldSingleData extends FormRecordFieldBase {
   display?: 'radio' | 'dropdown'
   values: SingleDataValue[]
 }
-interface FormRecordFieldMultiData extends FormRecordFieldSingleData {
+interface FormRecordFieldMultiData extends FormRecordFieldBase {
   input: 'multi-data'
   display?: 'checkbox' | 'dropdown'
+  values: SingleDataValue[]
 }
 
 /**
@@ -100,8 +101,12 @@ interface FormRecordFieldSingleRelatedData extends FormRecordFieldBase {
   valueField: string
   labelField: string
 }
-interface FormRecordFieldMultiRelatedData extends FormRecordFieldSingleRelatedData {
+interface FormRecordFieldMultiRelatedData extends FormRecordFieldBase {
   input: 'multi-related-data'
+  display: 'dropdown'
+  endpoint: string
+  valueField: string
+  labelField: string
 }
 
 type FormRecordField =
@@ -127,7 +132,7 @@ interface FormRecordBlock extends FormRecordBase {
   }[]
 }
 
-interface FormRecordStep extends FormRecordBase {
+export interface FormRecordStep extends FormRecordBase {
   /**
    * All fields needed for this step
    *

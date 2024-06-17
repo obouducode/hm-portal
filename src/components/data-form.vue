@@ -4,7 +4,7 @@ import PrimeInputText from 'primevue/inputtext'
 import PrimeButton from 'primevue/button'
 import PrimeCalendar from 'primevue/calendar'
 import PrimeToggleSwitch from 'primevue/inputswitch'
-import { type FormRecordStep, type FormRecordField } from '@/declarations'
+import { type FormRecordStep } from '@/declarations'
 import { Form as VvForm, Field as VvField, ErrorMessage as VvErrorMessage } from 'vee-validate'
 import * as yup from 'yup'
 
@@ -55,9 +55,9 @@ const schema = computed(() => {
   return yup.object(yupResult)
 })
 
-const dataForm = ref<Record<string, string | number | boolean | null>>({})
+const dataForm = ref<Record<string, any>>({})
 
-async function onSubmit(values) {
+async function onSubmit(values: Record<string, any>) {
   console.log('submit', values, schema, schema.value.isValidSync(values))
   const result = await schema.value.isValid(values)
   console.log(result)
@@ -95,7 +95,7 @@ watch(
       >
         {{ field.description['fr-FR'] }}
       </p>
-      <vv-field :name="field.name" v-slot="{ errors, errorMessage }">
+      <vv-field :name="field.name">
         <prime-input-text
           v-if="field.input === 'oneline-text'"
           :id="field.name"

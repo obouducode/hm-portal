@@ -10,7 +10,7 @@ import HMPDF from '@/hm_inscription.json'
 
 const stateForm = ref({
   currentStepIndex: 0,
-  dataForm: {},
+  dataForm: {} as Record<string, string | number | any[]>,
   errors: [],
   submitting: false,
   success: false,
@@ -386,10 +386,11 @@ const formRecord: FormRecord = {
 
 const currentStep = computed(() => formRecord.steps[stateForm.value.currentStepIndex])
 
-function addActivity (propertyName) {
+function addActivity (propertyName: string | undefined) {
+  if (!propertyName) return
   if (!stateForm.value.dataForm[propertyName])
-    stateForm.value.dataForm[propertyName] = []
-  stateForm.value.dataForm[propertyName].push({})
+    stateForm.value.dataForm[propertyName] = [];
+  (stateForm.value.dataForm[propertyName] as any[]).push({})
 }
 
 async function generatePDF () {
@@ -547,7 +548,7 @@ async function generatePDF () {
       <prime-accordion :multiple="true" :activeIndex="[0]">
 
       <template
-        v-for="(item, index) in stateForm.dataForm[currentStep.property]"
+        v-for="(item, index) in stateForm.dataForm.activity"
         :key="index"
       >
         <prime-accordion-tab>
