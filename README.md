@@ -1,6 +1,9 @@
-# hm-backoffice
+# Portail d'Héric Musique
 
-This template should help get you started developing with Vue 3 in Vite.
+Ce projet est pour l'instant le formulaire d'inscription
+pour l'école de musique d'Héric (44).
+
+Il pourra évoluer plus tard sur d'autres besoins.
 
 ## Recommended IDE Setup
 
