@@ -24,7 +24,7 @@ stateForm.value.dataForm = {
   'membership_city': '',
   'membership_tel_1': '',
   'membership_email_1': '',
-  'activity': []
+  'activity': [{}]
 }
 
 const currentStep = computed(() => formRecord.steps[stateForm.value.currentStepIndex])
@@ -251,9 +251,9 @@ function goToStep(index: number) {
         <strong>
           Votre inscription sera considérée comme définitive
           à la réception de votre paiement.
-          Vous pouvez nous l'apporter lors de nos permances.
+          Vous pouvez nous l'apporter lors de nos permanences.
 
-          Lors du forum des associations, le xx septembre 2024.
+          Lors du forum des associations, le 7 septembre 2024.
         </strong>
         <br>
         N'oubliez pas également de nous fournir votre attestation
