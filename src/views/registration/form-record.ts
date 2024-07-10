@@ -397,10 +397,23 @@ export const formRecord: FormRecord = {
         default: true
       }, {
         label: {
+          'fr-FR': 'Espèces',
+          'en-EN': 'Espèces',
+        },
+        value: 'espece',
+        default: true
+      }, {
+        label: {
           'fr-FR': 'Hello Asso',
           'en-EN': 'Hello Asso',
         },
         value: 'hello_asso'
+      }, {
+        label: {
+          'fr-FR': 'Autre',
+          'en-EN': 'Autre',
+        },
+        value: 'autre'
       }],
       rules: {
         required: true,
