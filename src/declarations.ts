@@ -160,9 +160,19 @@ export interface FormRecordStep extends FormRecordBase {
 
   /**
    * Do this property a multiple one,
-   * and if so, we store values in an array
+   * and if so, we store values in an array.
+   *
+   * Max items can be set too to limit the number of items.
    */
-  isArray?: boolean
+  array?: boolean
+  maxItems?: number
+
+  /**
+   * Is this step a summary ?
+   *
+   * Sum up all data field by user
+   */
+  summary?: boolean
 }
 
 /**
