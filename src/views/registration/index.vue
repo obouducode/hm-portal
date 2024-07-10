@@ -229,7 +229,7 @@ function goToStep(index: number) {
       <prime-button
         type="submit"
         class="border p-2 rounded-lg bg-gradient-to-r from-green-400 to-blue-500 hover:from-pink-500 hover:to-yellow-500 font-bold w-64 mx-auto my-8 block"
-        @click="generatePDF"
+        @click="generatePDF(stateForm.dataForm)"
       >
         Générer PDF
       </prime-button>

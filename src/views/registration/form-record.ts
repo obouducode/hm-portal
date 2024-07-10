@@ -367,39 +367,15 @@ export const formRecord: FormRecord = {
     },
     fields: [{
       label: {
-        'fr-FR': 'Nombre de paiements',
-        'en-EN': 'Nombre de paiements',
+        'fr-FR': 'Information sur paiements',
+        'en-EN': 'Information sur paiements',
       },
       description: {
         'fr-FR': '',
         'en-EN': '',
       },
-      name: 'payment_number',
-      input: 'single-data',
-      display: 'radio',
-      values: [{
-        label: {
-          'fr-FR': '1',
-          'en-EN': '1',
-        },
-        value: 'one_time'
-      }, {
-        label: {
-          'fr-FR': '3',
-          'en-EN': '3',
-        },
-        value: 'three_times'
-      }, {
-        label: {
-          'fr-FR': '10',
-          'en-EN': '10',
-        },
-        value: 'ten_times',
-        default: true
-      }],
-      rules: {
-        required: true,
-      }
+      name: 'payment_information',
+      input: 'oneline-text'
     }, {
       label: {
         'fr-FR': 'Moyen de paiement',
