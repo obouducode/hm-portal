@@ -200,8 +200,8 @@ export const formRecord: FormRecord = {
       }
     }, {
       label: {
-        'fr-FR': 'Besoins particuliers (PAI, accompagnement,...)',
-        'en-EN': 'Besoins particuliers (PAI, accompagnement,...)',
+        'fr-FR': 'Besoins particuliers (PAI, accompagnement, horaires privilégiés, fréquence...)',
+        'en-EN': 'Besoins particuliers (PAI, accompagnement, horaires privilégiés, fréquence...)',
       },
       name: 'activity_pai',
       input: 'multiline-text'
@@ -223,8 +223,8 @@ export const formRecord: FormRecord = {
         value: '2024_eveil'
       }, {
         label: {
-          'fr-FR': 'Instrument (< 4 ans) + Projet + Formation Musicale',
-          'en-EN': 'Instrument (< 4 ans) + Projet + Formation Musicale',
+          'fr-FR': 'Instrument (< 4 ans) ou chant + Projet + Formation Musicale',
+          'en-EN': 'Instrument (< 4 ans) ou chant + Projet + Formation Musicale',
         },
         value: '2024_instru_cycle1'
       }, {
@@ -235,8 +235,8 @@ export const formRecord: FormRecord = {
         value: '2024_multi'
       }, {
         label: {
-          'fr-FR': 'Instrument (> 4 ans) + Atelier',
-          'en-EN': 'Instrument (> 4 ans) + Atelier',
+          'fr-FR': 'Instrument (> 4 ans) ou chant + Atelier',
+          'en-EN': 'Instrument (> 4 ans) ou chant + Atelier',
         },
         value: '2024_instru_cycle2',
       }, {
