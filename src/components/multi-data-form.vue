@@ -119,21 +119,24 @@ watch(
           :key="idx"
         >
           <template #title>
-            <div class="flex justify-between border-b">
+            <div class="flex justify-between items-center border-b pb-2">
               <h3 class="text-xl font-medium">
                 Élève / cours {{ idx + 1 }} :
                 {{ _dataFormItem.value.activity_lastname }}
                 {{ _dataFormItem.value.activity_firstname }}
               </h3>
               <prime-button
-                  type="button"
-                  @click="remove(idx)"
-                  class="p-0 m-0"
-                  icon="pi pi-times"
-                  severity="danger"
-                  text
-                />
-              </div>
+                type="button"
+                @click="remove(idx)"
+                class="p-0 m-0 font-normal"
+                icon="pi pi-times"
+                iconPos="right"
+                severity="danger"
+                outlined
+                label=""
+                size="small"
+              ><span class="font-normal">Supprimer</span></prime-button>
+            </div>
           </template>
           <template #content>
             <div class="flex flex-col">
@@ -227,6 +230,7 @@ watch(
 
       <prime-button
         type="button"
+        outlined
         @click.stop="createNewCourse(push)"
         class="p-2 m-2 font-medium border"
         severity="info"
