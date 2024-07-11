@@ -2,7 +2,6 @@
 import { ref, watch, computed } from 'vue'
 import PrimeInputText from 'primevue/inputtext'
 import PrimeButton from 'primevue/button'
-import PrimeCalendar from 'primevue/calendar'
 import PrimeToggleSwitch from 'primevue/inputswitch'
 import { type FormRecordStep } from '@/declarations'
 import { Form, Field, FieldArray, ErrorMessage } from 'vee-validate'
@@ -183,7 +182,8 @@ watch(
                     </div>
                   </template>
                   <template v-else-if="field.input === 'date'">
-                    <prime-calendar
+                    <prime-input-text
+                      type="date"
                       class="mb-2"
                       v-model="dataForm[idx][field.name]"
                       :name="field.name"

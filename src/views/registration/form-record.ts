@@ -146,8 +146,8 @@ export const formRecord: FormRecord = {
         value: 'tranche3'
       }, {
         label: {
-          'fr-FR': 'Tranche 4 (> 1051 €) ou non appliquable',
-          'en-EN': 'Tranche 4 (> 1051 €) ou non appliquable',
+          'fr-FR': 'Tranche 4 (> 1051 €) ou choriste/hors cursus',
+          'en-EN': 'Tranche 4 (> 1051 €) ou choriste/hors cursus',
         },
         value: 'tranche4',
         default: true
