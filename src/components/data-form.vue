@@ -5,59 +5,22 @@ import PrimeButton from 'primevue/button'
 import PrimeToggleSwitch from 'primevue/inputswitch'
 import { type FormRecordStep } from '@/declarations'
 import { Form as VvForm, Field as VvField, ErrorMessage as VvErrorMessage } from 'vee-validate'
-import * as yup from 'yup'
+import { buildYupSchema } from '@/helpers/schema'
 
 const emits = defineEmits(['submit'])
 
 const props = withDefaults(defineProps<{
   step: FormRecordStep,
   displaySubmitButton?: boolean,
-  initialData?: Record<string, any>
+  initialData?: Record<string, any>,
+  submitButtonLabel?: string,
+  submitButtonDisabled?: boolean,
 }>(), {
-  displaySubmitButton: true
+  displaySubmitButton: true,
+  submitButtonLabel: 'Passer à l\'étape suivante',
+  submitButtonDisabled: false,
 })
-const schema = computed(() => {
-  const yupResult: Record<string, any> = {}
-  if (!props.step.fields) return yup.object(yupResult)
-  props.step.fields.forEach(f => {
-    const currentField = []
-    switch (f.input) {
-      case 'boolean':
-        currentField.push('boolean')
-        break
-      case 'number':
-      case 'float':
-        currentField.push('number')
-        break
-      case 'oneline-text':
-        currentField.push('string')
-        if (f.type === 'email')
-          currentField.push('email')
-        break
-      case 'date':
-      case 'datetime':
-        currentField.push('date')
-        break
-      case 'single-data':
-      case 'multi-data':
-      case 'single-related-data':
-      case 'multi-related-data':
-      case 'multiline-text':
-      default:
-        currentField.push('string')
-    }
-    if (f.rules?.required) {
-      currentField.push('required')
-    }
-    currentField.push(['label', f.label['fr-FR']])
-    yupResult[f.name] = currentField.reduce((f, fn: string | [string, string]) => {
-      if (typeof fn === 'string')
-        return f[fn]()
-      else return f[fn[0]](fn[1])
-    }, yup)
-  })
-  return yup.object().shape(yupResult)
-})
+const schema = computed(() => buildYupSchema(props.step.fields))
 
 const dataForm = ref<Record<string, any>>({})
 
@@ -107,12 +70,13 @@ watch(
         :name="field.name"
         v-slot="{ handleChange }"
       >
-        <prime-input-text
+        <input
           v-if="field.input === 'oneline-text'"
           :id="field.name"
           v-model="dataForm[field.name]"
+          v-bind="field.attributes"
+          class="leading-none m-0 py-2 px-3 rounded-md text-surface-800 dark:text-white/80 placeholder:text-surface-400 dark:placeholder:text-surface-500 bg-surface-0 dark:bg-surface-950 border border-surface-300 dark:border-surface-700 invalid:focus:ring-red-200 invalid:hover:border-red-500 hover:border-surface-400 dark:hover:border-surface-600 focus:outline-none focus:outline-offset-0 focus:ring-1 focus:ring-primary-500 dark:focus:ring-primary-400 focus:z-10 appearance-none transition-colors duration-200"
           :class="field.class"
-          :type="field.type || 'text'"
           :name="field.name"
           @update:model-value="handleChange"
         />
@@ -174,9 +138,11 @@ watch(
     <prime-button
       v-if="displaySubmitButton"
       type="submit"
-      class="border p-2 rounded-lg bg-gradient-to-r from-green-400 to-blue-500 hover:from-pink-500 hover:to-yellow-500 font-bold w-64 mx-auto my-8"
+      outlined
+      class="p-2 rounded-lg w-64 mx-auto my-8"
+      :disabled="submitButtonDisabled"
     >
-      Passer à l'étape suivante
+      {{ submitButtonLabel }}
     </prime-button>
   </vv-form>
 </template>

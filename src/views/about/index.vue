@@ -35,5 +35,11 @@
         https://github.com/obouducode/hm-portal
       </a>
     </p>
+
+    <p class="mt-8">
+      L'association loi 1901 Héric Musique
+      bénéficie de subventions de la part de la mairie d'Héric
+      ainsi que du conseil départemental de Loire Atlantique.
+    </p>
   </div>
 </template>

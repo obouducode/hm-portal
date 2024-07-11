@@ -14,8 +14,12 @@ const props = withDefaults(defineProps<{
   step: FormRecordStep,
   displaySubmitButton?: boolean,
   initialValues?: Record<string, any>,
+  submitButtonLabel?: string,
+  submitButtonDisabled?: boolean,
 }>(), {
   displaySubmitButton: true,
+  submitButtonLabel: 'Passer à l\'étape suivante',
+  submitButtonDisabled: false,
 })
 
 const activeTabIndex = ref(0)
@@ -246,9 +250,11 @@ watch(
     <prime-button
       v-if="displaySubmitButton"
       type="submit"
-      class="border p-2 rounded-lg bg-gradient-to-r from-green-400 to-blue-500 hover:from-pink-500 hover:to-yellow-500 font-bold w-64 mx-auto my-8"
+      outlined
+      class="p-2 rounded-lg w-64 mx-auto my-8"
+      :disabled="submitButtonDisabled"
     >
-      Passer à l'étape suivante
+      {{ submitButtonLabel }}
     </prime-button>
 
   </Form>

@@ -4,14 +4,13 @@ import DataForm from '@/components/data-form.vue'
 import MultiDataForm from '@/components/multi-data-form.vue'
 import PrimeButton from 'primevue/button'
 import { formRecord } from './form-record'
-import { generatePDF } from '@/helpers/pdf'
-import { FormRecordStep } from '@/declarations'
+import { type FormRecordStep } from '@/declarations'
 
 const stateForm = ref({
   currentStepIndex: 0,
   maxStepIndex: 0,
   dataForm: {} as Record<string, string | number | any[]>,
-  errors: [],
+  errors: [] as any[],
   submitting: false,
   success: false,
   inprogress: true
@@ -30,10 +29,16 @@ stateForm.value.dataForm = {
 
 const currentStep = computed<FormRecordStep>(() => formRecord.steps[stateForm.value.currentStepIndex])
 
-async function sendFormRecord() {
+async function sendFormRecord(values: Record<string, any>) {
+  if (values) {
+    Object.keys(values).forEach(key => {
+      stateForm.value.dataForm[key] = values[key]
+    })
+  }
+
   stateForm.value.submitting = true
   try {
-    await fetch('https://next.locokit.io/api/workspace/hm_bo/workflow/inscription_2024_2025/run', {
+    const response = await fetch('https://next.locokit.io/api/workspace/hm_bo/workflow/inscription_2024_2025/run', {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
@@ -43,7 +48,15 @@ async function sendFormRecord() {
         input: stateForm.value.dataForm
       })
     })
-    stateForm.value.success = true
+    const json = await response.json()
+    if (json.status === 'OK')
+      stateForm.value.success = true
+    else {
+      stateForm.value.success = false
+      stateForm.value.errors.push('Une erreur est survenue lors de la finalisation de votre inscription... Merci de prendre contact avec l\'équipe d\'Héric Musique sur le mail hericmusique@gmail.com')
+    }
+
+
   } catch (e) {
     stateForm.value.errors.push(e)
   }
@@ -54,8 +67,7 @@ async function sendFormRecord() {
  * Store values for the current step,
  * and upgrade to the next step
  */
-function manageNextStep(values: Record<string, any>) {
-  console.log(values)
+function manageNextStep(values?: Record<string, any>) {
   if (values) {
     Object.keys(values).forEach(key => {
       stateForm.value.dataForm[key] = values[key]
@@ -184,8 +196,9 @@ function goToStep(index: number) {
       Les activités adultes sont planifiées directement avec les professeurs.
       <prime-button
         type="submit"
-        class="border p-2 rounded-lg bg-gradient-to-r from-green-400 to-blue-500 hover:from-pink-500 hover:to-yellow-500 font-bold w-64 mx-auto my-8 block"
-        @click="$event => manageNextStep()"
+        outlined
+        class="p-2 rounded-lg w-64 mx-auto my-8"
+        @click="() => manageNextStep()"
       >
         Commencer l'inscription
       </prime-button>
@@ -196,7 +209,7 @@ function goToStep(index: number) {
       <multi-data-form
         v-if="currentStep.array"
         :step="currentStep"
-        :initial-values="{ data: stateForm.dataForm[currentStep.property] }"
+        :initial-values="{ data: stateForm.dataForm[currentStep.property!] }"
         @submit="manageNextStep"
       />
       <data-form
@@ -208,72 +221,68 @@ function goToStep(index: number) {
     </template>
 
     <template v-else>
-      <data-form
-        :step="currentStep"
-        :initial-data="stateForm.dataForm"
-        @submit="manageNextStep"
-      />
+      <div v-if="!stateForm.success">
+        <h4 class="text-lg font-medium mb-2">
+          Récapitulatif de votre inscription
+        </h4>
 
-      <p>
-        Avant de nous envoyer votre inscription,
-        merci de vérifier l'ensemble des données renseignées.
-      </p>
+        <p>
+          Avant de nous envoyer votre inscription,
+          merci de vérifier l'ensemble des données renseignées.
+        </p>
 
-      {{ stateForm.dataForm }}
+        <data-detail :data="stateForm.dataForm" />
 
-      <prime-button
-        type="submit"
-        class="border p-2 rounded-lg bg-gradient-to-r from-green-400 to-blue-500 hover:from-pink-500 hover:to-yellow-500 font-bold w-64 mx-auto my-8 block"
-        @click="generatePDF(stateForm.dataForm)"
-      >
-        Générer PDF
-      </prime-button>
-
-      <h4 class="text-lg font-bold mb-2">Validation de votre inscription</h4>
-
-      <p>
-        Si vous pensez avoir finalisé votre inscription,
-        vous pouvez procéder à sa validation.
-      </p>
-      <p>
-        Cela va générer un email contenant
-        votre demande d'inscription
-        avec l'ensemble des renseignements précédents.
-        Vous serez en copie du mail.
-      </p>
-      <p class="text-center text-lg font-bold my-4">ATTENTION !!!</p>
-      <p>
-        <strong>
-          Votre inscription sera considérée comme définitive
+        <p class="mb-2">
+          Si vous pensez avoir finalisé votre inscription,
+          merci de nous indiquer la conduite à tenir
+          concernant le droit à l'image,
+          <a href="/2024-hm-reglement-interieur.pdf" target="_blank" class="underline">
+            lisez le règlement intérieur disponible ici
+          </a>
+          puis cochez la case vous engageant à le respecter.
+        </p>
+        <p>
+          Un email contenant
+          votre demande d'inscription
+          avec l'ensemble des renseignements précédents
+          sera envoyé à Héric Musique,
+          copie à l'adresse mail que vous aurez renseigné
+          dans la page de coordonnées.
+        </p>
+        <p class="text-center text-lg font-bold my-4">ATTENTION !!! MERCI DE LIRE ATTENTIVEMENT !!!</p>
+        <p class="mb-2">
+          Votre inscription sera considérée comme
+          <span  class="font-medium">définitive</span>
           à la réception de votre paiement.
-          Vous pouvez nous l'apporter lors de nos permanences.
+          Vous pouvez nous l'apporter lors
+          du forum des associations, le 7 septembre 2024.
+        </p>
+        <p>
+          N'oubliez pas également de nous fournir <span class="font-medium">votre attestation
+          CAF</span> concernant le quotient familial si vous êtes tranche 1 à 3.
+        </p>
 
-          Lors du forum des associations, le 7 septembre 2024.
-        </strong>
-        <br>
-        N'oubliez pas également de nous fournir votre attestation
-        CAF concernant le quotient familial si vous êtes tranche 1 à 3.
-      </p>
-      <prime-button
-        type="submit"
-        class="border p-2 rounded-lg bg-gradient-to-r from-green-400 to-blue-500 hover:from-pink-500 hover:to-yellow-500 font-bold w-64 mx-auto my-8 block"
-        @click="sendFormRecord"
-        :disabled="stateForm.submitting"
-        v-if="!stateForm.success"
-      >
-        Valider mon inscription
-      </prime-button>
+        <data-form
+          class="mt-4"
+          :step="currentStep"
+          :initial-data="stateForm.dataForm"
+          submit-button-label="Valider mon inscription"
+          :submit-button-disabled="stateForm.submitting"
+          @submit="sendFormRecord"
+        />
+      </div>
 
       <div
         v-else
-        class="border p-2 rounded-lg font-bold w-64 mx-auto text-center shadow-md"
+        class="border p-8 rounded-md font-medium w-auto mx-auto text-center shadow-md"
       >
-        Inscription finalisée !!!
+        Bravo !!!
+        Votre inscription est finalisée !!!
       </div>
 
     </template>
 
   </div>
-
 
 </template>

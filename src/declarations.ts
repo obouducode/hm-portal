@@ -26,8 +26,14 @@ interface FormRecordFieldBase extends FormRecordBase {
   // property name of the field
   name: string
   input: FormRecordFieldInput
+  /**
+   * Attributes that can be v-bind
+   * to the HTML element
+   */
+  attributes?: Record<string, any>
   rules?: Partial<{
     required: boolean
+    match: string | number
     minLength: number
     maxLength: number
   }>

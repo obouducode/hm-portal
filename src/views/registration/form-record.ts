@@ -56,7 +56,9 @@ export const formRecord: FormRecord = {
       },
       name: 'membership_email_1',
       input: 'oneline-text',
-      type: 'email',
+      attributes: {
+        type: 'email',
+      },
       rules: {
         required: true,
       }
@@ -67,7 +69,9 @@ export const formRecord: FormRecord = {
       },
       name: 'membership_email_2',
       input: 'oneline-text',
-      type: 'email'
+      attributes: {
+        type: 'email'
+      },
     }, {
       label: {
         'fr-FR': 'Tél n°1 de contact',
@@ -75,7 +79,9 @@ export const formRecord: FormRecord = {
       },
       name: 'membership_tel_1',
       input: 'oneline-text',
-      type: 'tel',
+      attributes: {
+        type: 'tel',
+      },
       rules: {
         required: true,
       }
@@ -86,7 +92,9 @@ export const formRecord: FormRecord = {
       },
       name: 'membership_tel_2',
       input: 'oneline-text',
-      type: 'tel'
+      attributes: {
+        type: 'tel'
+      },
     }, {
       label: {
         'fr-FR': 'Adresse',
@@ -101,6 +109,11 @@ export const formRecord: FormRecord = {
       },
       name: 'membership_zipcode',
       input: 'oneline-text',
+      attributes: {
+        minlength: 5,
+        maxlength: 5,
+        inputmode: "numeric"
+      },
       rules: {
         required: true,
       }
@@ -522,6 +535,7 @@ export const formRecord: FormRecord = {
       }],
       rules: {
         required: true,
+        match: 'yes'
       }
     }],
   }]
