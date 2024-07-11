@@ -21,8 +21,8 @@ export const formRecord: FormRecord = {
     },
   }, {
     label: {
-      'fr-FR': 'Coordonnées',
-      'en-EN': 'Coordonnées',
+      'fr-FR': 'Adhésion',
+      'en-EN': 'Adhésion',
     },
     description: {
       'fr-FR': 'Merci de renseigner les informations de l\'adhérent ou de son-sa représentant-e légal-e',
@@ -158,12 +158,12 @@ export const formRecord: FormRecord = {
     }]
   }, {
     label: {
-      'fr-FR': 'Élève(s)',
-      'en-EN': 'Élève(s)',
+      'fr-FR': 'Cours',
+      'en-EN': 'Cours',
     },
     description: {
-      'fr-FR': 'Explications sur cette deuxième étape',
-      'en-EN': 'Explications sur cette deuxième étape',
+      'fr-FR': 'Merci de renseignez chaque élève et son cours associé.',
+      'en-EN': 'Merci de renseignez chaque élève et son cours associé.',
     },
     property: 'activity',
     array: true,
@@ -198,13 +198,6 @@ export const formRecord: FormRecord = {
       rules: {
         required: true,
       }
-    }, {
-      label: {
-        'fr-FR': 'Besoins particuliers (PAI, accompagnement, horaires privilégiés, fréquence...)',
-        'en-EN': 'Besoins particuliers (PAI, accompagnement, horaires privilégiés, fréquence...)',
-      },
-      name: 'activity_pai',
-      input: 'multiline-text'
     }, {
       label: {
         'fr-FR': 'Cours',
@@ -284,6 +277,42 @@ export const formRecord: FormRecord = {
       }],
     }, {
       label: {
+        'fr-FR': 'Formation musicale',
+        'en-EN': 'Formation musicale',
+      },
+      description: {
+        'fr-FR': 'Si applicable, choisir l\'année de la formation musicale',
+        'en-EN': 'Si applicable, choisir l\'année de la formation musicale'
+      },
+      name: 'activity_teach_year',
+      input: 'single-data',
+      values: [{
+        label: {
+          'fr-FR': '1ère année',
+          'en-EN': '1ère année',
+        },
+        value: 'first_year'
+      }, {
+        label: {
+          'fr-FR': '2ème année',
+          'en-EN': '2ème année',
+        },
+        value: 'second'
+      }, {
+        label: {
+          'fr-FR': '3ème année',
+          'en-EN': '3ème année',
+        },
+        value: 'third'
+      }, {
+        label: {
+          'fr-FR': '4ème année',
+          'en-EN': '4ème année',
+        },
+        value: 'fourth'
+      }],
+    }, {
+      label: {
         'fr-FR': 'Instrument',
         'en-EN': 'Instrument',
       },
@@ -354,6 +383,13 @@ export const formRecord: FormRecord = {
         },
         value: 'saxophone',
       }],
+    }, {
+      label: {
+        'fr-FR': 'Besoins particuliers (PAI, accompagnement, horaires privilégiés, fréquence...)',
+        'en-EN': 'Besoins particuliers (PAI, accompagnement, horaires privilégiés, fréquence...)',
+      },
+      name: 'activity_information',
+      input: 'multiline-text'
     }],
   }, {
     label: {
@@ -362,8 +398,8 @@ export const formRecord: FormRecord = {
     },
     summary: true,
     description: {
-      'fr-FR': 'Modalités de paiement',
-      'en-EN': 'Modalités de paiement',
+      'fr-FR': 'Merci de renseigner vos modalités de paiement',
+      'en-EN': 'Merci de renseigner vos modalités de paiement',
     },
     fields: [{
       label: {
@@ -421,8 +457,8 @@ export const formRecord: FormRecord = {
     }],
   }, {
     label: {
-      'fr-FR': 'Récapitulatif',
-      'en-EN': 'Récapitulatif',
+      'fr-FR': 'Récap',
+      'en-EN': 'Récap',
     },
     summary: true,
     description: {
@@ -435,8 +471,8 @@ export const formRecord: FormRecord = {
         'en-EN': 'Droits de diffusion',
       },
       description: {
-        'fr-FR': 'Vous autorisez l\'association Héric Musique à afficher ou publier, à des fins de promotion ou de communication, une photographie ou une vidéo sur laquelle figure un des élèves mentionnés ci-dessus',
-        'en-EN': 'Vous autorisez l\'association Héric Musique à afficher ou publier, à des fins de promotion ou de communication, une photographie ou une vidéo sur laquelle figure un des élèves mentionnés ci-dessus',
+        'fr-FR': 'Vous autorisez l\'association Héric Musique à afficher ou publier, à des fins de promotion ou de communication, une photographie ou une vidéo sur laquelle figure un des élèves mentionnés dans ce formulaire.',
+        'en-EN': 'Vous autorisez l\'association Héric Musique à afficher ou publier, à des fins de promotion ou de communication, une photographie ou une vidéo sur laquelle figure un des élèves mentionnés dans ce formulaire.',
       },
       name: 'broadcast_right',
       input: 'single-data',
@@ -456,7 +492,7 @@ export const formRecord: FormRecord = {
         value: 'no'
       }],
       rules: {
-        required: true,
+        required: true
       }
     },{
       label: {

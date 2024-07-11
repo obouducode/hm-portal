@@ -3,7 +3,7 @@ import { RouterLink, RouterView } from 'vue-router'
 </script>
 
 <template>
-  <header class="bg-white p-2 lg:p-4 mb-8 shadow-md">
+  <header class="bg-white p-1 lg:p-2 mb-1 lg:mb-2 shadow-md">
 
     <nav class=" flex items-center justify-center lg:justify-between w-full lg:w-[50rem] mx-auto">
 
@@ -24,7 +24,7 @@ import { RouterLink, RouterView } from 'vue-router'
     </nav>
   </header>
 
-  <main class="mx-auto w-full max-w-[48rem] my-2 md:my-8 bg-white p-2 md:p-4 rounded-lg border">
+  <main class="mx-auto w-full max-w-[48rem] my-1 md:my-2 bg-white p-2 md:p-4 rounded-lg border">
     <router-view />
   </main>
 

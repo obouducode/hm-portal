@@ -5,6 +5,7 @@ import MultiDataForm from '@/components/multi-data-form.vue'
 import PrimeButton from 'primevue/button'
 import { formRecord } from './form-record'
 import { generatePDF } from '@/helpers/pdf'
+import { FormRecordStep } from '@/declarations'
 
 const stateForm = ref({
   currentStepIndex: 0,
@@ -27,7 +28,7 @@ stateForm.value.dataForm = {
   'activity': [{}]
 }
 
-const currentStep = computed(() => formRecord.steps[stateForm.value.currentStepIndex])
+const currentStep = computed<FormRecordStep>(() => formRecord.steps[stateForm.value.currentStepIndex])
 
 async function sendFormRecord() {
   stateForm.value.submitting = true
@@ -63,6 +64,7 @@ function manageNextStep(values: Record<string, any>) {
   if (stateForm.value.maxStepIndex === stateForm.value.currentStepIndex)
     stateForm.value.maxStepIndex++
   stateForm.value.currentStepIndex++
+  window.scrollTo(0,0)
 }
 
 /**
@@ -77,11 +79,11 @@ function goToStep(index: number) {
 
 <template>
 
-  <ol class="items-center w-full space-y-4 sm:flex sm:space-x-8 sm:space-y-0 rtl:space-x-reverse mb-4 lg:mb-8 pb-2 lg:pb-4 px-2 lg:px-4 border-b">
+  <ol class="items-center w-full space-y-4 sm:flex sm:space-x-8 sm:space-y-0 rtl:space-x-reverse mb-4 lg:mb-8 pb-2 lg:pb-4 border-b">
     <li
       class="flex items-center space-x-2.5 rtl:space-x-reverse px-2"
       :class="{
-        'text-blue-600 dark:text-blue-500 border-r border-l': stateForm.currentStepIndex === index,
+        'text-blue-600 dark:text-blue-500': stateForm.currentStepIndex === index,
         'opacity-50 cursor-not-allowed': index > stateForm.maxStepIndex,
         'cursor-pointer': index <= stateForm.maxStepIndex
       }"
@@ -190,41 +192,34 @@ function goToStep(index: number) {
 
     </template>
 
-    <template v-else-if="stateForm.currentStepIndex === 1">
-      <data-form
+    <template v-else-if="stateForm.currentStepIndex < formRecord.steps.length - 1">
+      <multi-data-form
+        v-if="currentStep.array"
         :step="currentStep"
-        :initial-data="stateForm.dataForm"
+        :initial-values="{ data: stateForm.dataForm[currentStep.property] }"
         @submit="manageNextStep"
       />
-    </template>
-    <template v-else-if="stateForm.currentStepIndex === 2">
-      <multi-data-form
+      <data-form
+        v-else
         :step="currentStep"
-        :initial-values="{ data: stateForm.dataForm.activity }"
+        :initial-data="stateForm.dataForm"
         @submit="manageNextStep"
       />
     </template>
 
-    <template v-else-if="stateForm.currentStepIndex === 3">
+    <template v-else>
       <data-form
         :step="currentStep"
         :initial-data="stateForm.dataForm"
         @submit="manageNextStep"
       />
-    </template>
-    <template v-else>
+
       <p>
         Avant de nous envoyer votre inscription,
         merci de vérifier l'ensemble des données renseignées.
       </p>
 
       {{ stateForm.dataForm }}
-
-      Adhésion
-
-      Activités souscrites
-
-      <br/>
 
       <prime-button
         type="submit"

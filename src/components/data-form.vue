@@ -93,12 +93,12 @@ watch(
       v-for="field in props.step.fields"
       :key="field.name"
     >
-      <label :for="field.name" class="font-bold mt-2 mb-1">
+      <label :for="field.name" class="font-medium mt-2 mb-1">
         {{ field.label['fr-FR'] }}
         <span v-if="field.rules?.required" class="text-red-500">*</span>
       </label>
       <p
-        class="text-gray-500 italic mb-1"
+        class="text-gray-500 italic mb-2"
         v-if="field.description"
       >
         {{ field.description['fr-FR'] }}

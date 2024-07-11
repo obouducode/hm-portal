@@ -6,8 +6,7 @@ import PrimeToggleSwitch from 'primevue/inputswitch'
 import { type FormRecordStep } from '@/declarations'
 import { Form, Field, FieldArray, ErrorMessage } from 'vee-validate'
 import * as yup from 'yup'
-import PrimeTabView from 'primevue/tabview'
-import PrimeTabPanel from 'primevue/tabpanel'
+import PrimeCard from 'primevue/card'
 
 const emits = defineEmits(['submit'])
 
@@ -18,6 +17,8 @@ const props = withDefaults(defineProps<{
 }>(), {
   displaySubmitButton: true,
 })
+
+const activeTabIndex = ref(0)
 
 const schema = computed(() => {
   const yupResult: Record<string, any> = {}
@@ -76,6 +77,12 @@ async function onSubmit(values: Record<string, any>) {
   emits('submit', { activity: values.data })
 }
 
+function createNewCourse(push: Function) {
+  dataForm.value.push({})
+  push({})
+  activeTabIndex.value = dataForm.value.length - 1
+}
+
 /**
  * Affect the local dataForm to the new data received
  */
@@ -106,34 +113,40 @@ watch(
   >
     <FieldArray name="data" v-slot="{ fields, push, remove }">
 
-      <prime-button
-        type="submit"
-        class="border p-2 rounded-lg bg-gradient-to-r from-green-400 to-blue-500 hover:from-pink-500 hover:to-yellow-500 font-bold mx-auto my-8 block"
-        @click="dataForm.push({}) && push({})"
-        :disabled="fields.length === 3"
-      >
-        Ajouter une inscription à une activité (max 3)
-      </prime-button>
-
-      <prime-tab-view :multiple="true">
-        <template
-          v-for="(dataFormItem, idx) in fields"
+        <prime-card
+          v-for="(_dataFormItem, idx) in fields"
+          class="shadow-xl my-2 border"
           :key="idx"
         >
-          <prime-tab-panel class="flex flex-col"
-            :header="`Activité n° ${ idx + 1 }`"
-          >
+          <template #title>
+            <div class="flex justify-between border-b">
+              <h3 class="text-xl font-medium">
+                Élève / cours {{ idx + 1 }} :
+                {{ _dataFormItem.value.activity_lastname }}
+                {{ _dataFormItem.value.activity_firstname }}
+              </h3>
+              <prime-button
+                  type="button"
+                  @click="remove(idx)"
+                  class="p-0 m-0"
+                  icon="pi pi-times"
+                  severity="danger"
+                  text
+                />
+              </div>
+          </template>
+          <template #content>
             <div class="flex flex-col">
               <template
                 v-for="field in props.step.fields"
                 :key="field.name"
               >
-                <label :for="field.name" class="font-bold mt-2 mb-1">
+                <label :for="field.name" class="font-medium mt-2 mb-1">
                   {{ field.label['fr-FR'] }}
                   <span v-if="field.rules?.required" class="text-red-500">*</span>
                 </label>
                 <p
-                  class="text-gray-500 italic mb-1"
+                  class="text-gray-500 italic mb-2"
                   v-if="field.description"
                 >
                   {{ field.description['fr-FR'] }}
@@ -207,24 +220,23 @@ watch(
                   class="text-red-500"
                 />
               </template>
-
-
-              <prime-button
-                type="button"
-                @click="remove(idx)"
-                severity="danger"
-
-              >Supprimer cette activité</prime-button>
             </div>
-          </prime-tab-panel>
-        </template>
-      </prime-tab-view>
+          </template>
 
+        </prime-card>
+
+      <prime-button
+        type="button"
+        @click.stop="createNewCourse(push)"
+        class="p-2 m-2 font-medium border"
+        severity="info"
+        label="Ajouter un nouveau cours"
+      />
     </FieldArray>
 
 
     <div v-if="Object.keys(errors).length > 0" class="text-red-500 mx-auto">
-      Des erreurs sont présentes dans le formulaire (pensez à bien vérifier les différentes activités)
+      Des erreurs sont présentes dans le formulaire (pensez à bien vérifier tous les cours / élèves)
     </div>
 
     <prime-button
