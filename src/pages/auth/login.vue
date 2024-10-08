@@ -16,6 +16,13 @@ async function onSubmit(data: { email: string; password: string }) {
       name: '/admin/'
     })
 }
+
+definePage({
+  meta: {
+    displayHeader: true,
+    displayFooter: true
+  }
+})
 </script>
 
 <template>
