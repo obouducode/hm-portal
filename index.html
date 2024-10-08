@@ -1,13 +1,46 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full">
   <head>
     <meta charset="UTF-8">
     <link rel="icon" href="/favicon.ico">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Héric Musique</title>
   </head>
-  <body class="bg-gray-100">
-    <div id="app"></div>
+  <body class="bg-slate-100 h-full">
+    <div id="app" class="flex flex-col h-full">
+      Loading the app...
+    </div>
     <script type="module" src="/src/main.ts"></script>
+    <script>
+      const LCK_SETTINGS = {
+        API_URL: "https://next.locokit.io/api",
+        LOCALSTORAGE_KEY_AUTH_TOKEN: 'hm-auth-token',
+        LOCALSTORAGE_KEY_AUTH_USER: 'hm-auth-user',
+        LOCALSTORAGE_KEY_USER_GROUPS: 'hm-user-groups',
+        LOCALSTORAGE_KEY_USER_VIEWS: 'hm-user-views',
+        LOCALSTORAGE_KEY_OFFLINE_DATA_DICTIONARY: 'hm-offline-data-dictionary',
+        LOCALSTORAGE_KEY_OFFLINE_LAST_RETRIEVAL_DATETIME: 'hm-offline-last-retrieval-datetime',
+        LOCALSTORAGE_KEY_OFFLINE_DATA_USER: 'hm-offline-data-user',
+        SENTRY_DSN: null,
+        SENTRY_ENV: null,
+        STORAGE_URL: null
+      }
+      const HM_THEME = {
+        HOME_BACKGROUND_IMAGE_URL: '/img/PNPC_005342_resized.jpg',
+        PAGE_DATABASE_BACKGROUND_IMAGE_URL: '/img/logo-hm-grayscale.png',
+        PAGE_404_BACKGROUND_IMAGE_URL: '/img/PNPC_005171_resized.jpg',
+        LOGO_BG_WHITE_URL: '/img/logo-white.svg',
+        LOGO_BG_PRIMARY_URL: '/img/logo.svg',
+        LOGO_MOBILE_URL: '/img/logo-mobile.svg'
+      }
+      const HM_VERSION = '0.0.1'
+
+      const TABLE_IDS_TO_STORE_OFFLINE = [
+      ]
+
+      const TABLE_VIEW_IDS_TO_STORE_OFFLINE = [
+      ]
+    </script>
+
   </body>
 </html>

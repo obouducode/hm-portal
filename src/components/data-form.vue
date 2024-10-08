@@ -6,6 +6,7 @@ import PrimeToggleSwitch from 'primevue/inputswitch'
 import { type FormRecordStep } from '@/declarations'
 import { Form as VvForm, Field as VvField, ErrorMessage as VvErrorMessage } from 'vee-validate'
 import { buildYupSchema } from '@/helpers/schema'
+import PrimeInputNumber from 'primevue/inputnumber'
 
 const emits = defineEmits(['submit'])
 
@@ -128,6 +129,16 @@ watch(
             @update:model-value="handleChange"
           />
         </template>
+        <prime-input-number
+          class="mb-2"
+          v-else-if="field.input === 'number'"
+          v-model="dataForm[field.name]"
+          :name="field.name"
+          :id="field.name"
+          v-bind="field.attributes"
+          fluid
+            @update:model-value="handleChange"
+        />
       </vv-field>
       <vv-error-message
         :name="field.name"
@@ -137,12 +148,11 @@ watch(
     </template>
     <prime-button
       v-if="displaySubmitButton"
+      rounded
       type="submit"
-      outlined
       class="p-2 rounded-lg w-64 mx-auto my-8"
       :disabled="submitButtonDisabled"
-    >
-      {{ submitButtonLabel }}
-    </prime-button>
+      :label="submitButtonLabel"
+    />
   </vv-form>
 </template>
