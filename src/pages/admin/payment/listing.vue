@@ -26,7 +26,7 @@ async function findPayments() {
   try {
     payments.value = await lckWorkspaceHM.tables.payment.record.find({
       query: {
-        $joinRelated: '[payment_step]',
+        $fetch: '[payment_step]',
         $limit: pagination.value.limit,
         $skip: pagination.value.skip
       }

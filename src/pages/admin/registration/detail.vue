@@ -30,7 +30,7 @@ onMounted(async () => {
   loading.value = true
   registrations.value = await lckWorkspaceHM.tables.registration.record.find({
     query: {
-      $joinRelated: '[membership_person,activity_course]'
+      $fetch: '[membership_person,activity_course]'
     }
   })
   loading.value = false

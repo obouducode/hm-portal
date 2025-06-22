@@ -11,15 +11,10 @@ import PrimeSelectButton from 'primevue/selectbutton'
 import PrimeInputNumber from 'primevue/inputnumber'
 
 import DataForm from '@/components/data-form.vue'
-import {
-  membershipFields,
-  membershipPersonFields,
-  paymentStepFields,
-  paymentFields
-} from './membershipFieldsTypes'
+import { membershipFields, paymentStepFields, paymentFields } from './membershipFieldsTypes'
 
 const loading = ref(false)
-const memberships = ref()
+const memberships = ref({})
 const search = ref('')
 const currentMembership = ref()
 
@@ -40,7 +35,7 @@ async function findMembership() {
     memberships.value = await lckWorkspaceHM.tables.membership.record.find({
       query: {
         // $joinRelated: '[membership_person.[registration.[activity_course]],payment]',
-        $joinRelated: '[payment]',
+        $fetch: '[payment]',
         $limit: pagination.value.limit,
         $skip: pagination.value.skip,
         lastname: {
@@ -72,20 +67,39 @@ const editingRows = ref()
 async function retreiveMembershipPerson() {
   const paymentStepsResult = await lckWorkspaceHM.tables.paymentStep.record.find({
     query: {
-      payment_id: currentMembership.value.payment[0].id
+      payment_id: currentMembership.value.payment?.[0]?.id
     }
   })
   paymentSteps.value = paymentStepsResult.data
   const membershipPersonsResult = await lckWorkspaceHM.tables.membership_person.record.find({
     query: {
-      membership_family_id: currentMembership.value.id
+      membership_family_id: currentMembership.value.id,
+      $fetch: 'registration.[activity_instrument,activity_course]'
     }
   })
   currentMembership.value.membership_person = membershipPersonsResult.data
   optionsSelectButton.value[1].name = 'Membres (' + membershipPersonsResult.data.length + ')'
 }
+
+async function updateMembership(values) {
+  console.log('updateMembership', values)
+  const { created_at, updated_at, membership_person, payment, id, ...data } = values
+  const membershipResult = await lckWorkspaceHM.tables.membership.record.patch(id, {
+    ...data
+  })
+  console.log(membershipResult)
+}
+
 async function onRowEditSave(event) {
-  console.log(event)
+  const { id, amount, information, method, planned_receipt_date, receipt_date } = event.newData
+  console.log(id, information, method, planned_receipt_date, receipt_date)
+  const paymentStepsResult = await lckWorkspaceHM.tables.paymentStep.record.patch(id, {
+    amount,
+    information,
+    method,
+    planned_receipt_date,
+    receipt_date
+  })
 }
 
 /**
@@ -106,6 +120,18 @@ async function addPaymentStep(paymentId, values) {
     }
   })
   paymentSteps.value = paymentStepsResult.data
+}
+async function onSubmitPaymentMode(id, values) {
+  console.log('onSubmitPaymentMode', id, values)
+  await lckWorkspaceHM.tables.payment.record.patch(values.id, {
+    ...values
+  })
+  const payments = await lckWorkspaceHM.tables.payment.record.find({
+    query: {
+      membership_id: currentMembership.value.id
+    }
+  })
+  currentMembership.value.payment = payments.data
 }
 function onPage(event: PageState) {
   console.log(event)
@@ -162,7 +188,7 @@ async function selectMembership(m: any) {
 
         <div class="overflow-auto">
           <div
-            v-for="(m, idx) in memberships?.data"
+            v-for="m in memberships?.data"
             :key="m.id"
             class="flex gap-1 border p-2 hover:bg-slate-100 cursor-pointer"
             :class="{
@@ -185,7 +211,7 @@ async function selectMembership(m: any) {
                 "
                 :severity="m.membership_person?.length > 1 ? 'success' : 'info'"
               />
-              {{ m.payment.length }}
+              {{ m.payment?.length }}
             </div>
           </div>
         </div>
@@ -196,15 +222,12 @@ async function selectMembership(m: any) {
       <!-- affichage de la fiche de détail de l'inscription avec les paiements ? -->
       <!-- Membership detail, with registrations, payments, schedules, ... -->
 
-      <div
-        v-if="!currentMembership"
-        class="w-[56rem] mx-auto flex items-center justify-center h-full"
-      >
+      <div v-if="!currentMembership" class="mx-auto flex items-center justify-center h-full">
         Vous pouvez choisir une inscription via le listing de gauche.
       </div>
 
       <div class="h-full" v-else>
-        <header class="w-[56rem] mx-auto h-10 flex items-center justify-between">
+        <header class="mx-auto h-10 flex items-center justify-between">
           <div class="text-2xl leading-8 text-color font-medium">
             Fiche d'adhésion de {{ currentMembership.lastname }} {{ currentMembership.firstname }}
           </div>
@@ -221,36 +244,81 @@ async function selectMembership(m: any) {
         </header>
 
         <div class="mt-2 overflow-auto" style="height: calc(100% - 3rem)">
-          <div
-            class="w-[56rem] flex flex-col mx-auto bg-white border border-surface rounded-lg p-2 md:p-4"
-          >
+          <div class="flex flex-col mx-auto bg-white border border-surface rounded-lg p-2 md:p-4">
             <template v-if="valueSelectButton.value === 1">
               <data-form
                 class="mt-4"
                 :step="{ fields: membershipFields }"
                 :initial-data="currentMembership"
                 submit-button-label="Modifier l'adhésion"
+                @submit="updateMembership"
               />
             </template>
 
             <template v-if="valueSelectButton.value === 2">
-              <div v-for="r in currentMembership.membership_person">
-                <data-form
+              <div
+                v-for="person in currentMembership?.membership_person"
+                :key="person.id"
+                class="border m-2 rounded p-2"
+              >
+                <h2 class="text-2xl">
+                  {{ person.lastname }}
+                  {{ person.firstname }}
+                </h2>
+                Née le {{ person.birthday }}
+
+                <h3 class="text-xl">Inscriptions</h3>
+                <div
+                  v-for="registration in person.registration"
+                  :key="registration.id"
+                  class="flex rounded-md p-2 flex-wrap"
+                  :class="{
+                    'bg-orange-200': registration.cancelled
+                  }"
+                >
+                  <section
+                    v-if="registration.cancelled"
+                    class="font-semibold w-full text-center text-lg my-2"
+                  >
+                    Annulée le {{ registration.cancelation_date }} pour motif
+                    {{ registration.cancelation_reason }}
+                  </section>
+                  <div class="w-1/2">
+                    <span class="font-semibold">Cours :</span>
+                    {{ registration.activity_course.slug }}
+                  </div>
+                  <div class="w-1/2" v-if="registration.activity_instrument">
+                    <span class="font-semibold">Instrument :</span>
+                    {{ registration.activity_instrument.slug }}
+                  </div>
+                  <div class="w-full flex justify-between">
+                    <span class="font-semibold">Prix tranche 1 :</span>
+                    {{ registration.activity_course.price_quotient1 }} €
+                    <span class="font-semibold">Prix tranche 2 :</span>
+                    {{ registration.activity_course.price_quotient2 }} €
+                    <span class="font-semibold">Prix tranche 3 :</span>
+                    {{ registration.activity_course.price_quotient3 }} €
+                    <span class="font-semibold">Prix tranche 4 :</span>
+                    {{ registration.activity_course.price_quotient4 }}
+                    €
+                  </div>
+                </div>
+                <!-- <data-form
                   class="mt-4"
                   :step="{ fields: membershipPersonFields }"
                   :initial-data="r"
                   submit-button-label="Modifier l'inscription à l'activité"
-                />
-                {{ r }}
+                /> -->
               </div>
             </template>
             <template v-if="valueSelectButton.value === 3">
-              <div v-for="p in currentMembership.payment">
+              <div v-for="p in currentMembership.payment" :key="p.id">
                 <data-form
                   class="mt-4"
                   :step="{ fields: paymentFields }"
                   :initial-data="p"
                   submit-button-label="Modifier le(s) mode(s) de paiement"
+                  @submit="onSubmitPaymentMode(p.id, $event)"
                 />
 
                 <data-form

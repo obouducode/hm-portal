@@ -7,7 +7,7 @@ import PrimeColumn from 'primevue/column'
 import type { PageState } from 'primevue/paginator'
 
 const loading = ref(false)
-const memberships = ref()
+const memberships = ref({})
 const search = ref('')
 const pagination = ref({
   limit: 200,
@@ -20,7 +20,7 @@ async function findMembership() {
     memberships.value = await lckWorkspaceHM.tables.membership.record.find({
       query: {
         // $joinRelated: '[membership_person.[registration.[activity_course]],payment]',
-        $joinRelated: '[payment]',
+        $fetch: '[payment]',
         $limit: pagination.value.limit,
         $skip: pagination.value.skip,
         lastname: {

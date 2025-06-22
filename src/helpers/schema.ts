@@ -1,9 +1,9 @@
 import { type FormRecordField } from '@/declarations'
 import * as yup from 'yup'
 
-export function buildYupSchema (fields: FormRecordField[] = []) {
+export function buildYupSchema(fields: FormRecordField[] = []) {
   const yupResult: Record<string, any> = {}
-  fields.forEach(f => {
+  fields.forEach((f) => {
     const currentField = []
     switch (f.input) {
       case 'boolean':
@@ -15,8 +15,7 @@ export function buildYupSchema (fields: FormRecordField[] = []) {
         break
       case 'oneline-text':
         currentField.push('string')
-        if (f.attributes?.type === 'email')
-          currentField.push('email')
+        if (f.attributes?.type === 'email') currentField.push('email')
         break
       case 'date':
       case 'datetime':
@@ -33,15 +32,15 @@ export function buildYupSchema (fields: FormRecordField[] = []) {
     if (f.rules?.required) {
       currentField.push('required')
     }
-/*    if (f.rules?.match) {
+    /*    if (f.rules?.match) {
       currentField.
     }*/
     currentField.push(['label', f.label['fr-FR']])
     yupResult[f.name] = currentField.reduce((f, fn: string | [string, string]) => {
-      if (typeof fn === 'string')
-        return f[fn]()
+      if (typeof fn === 'string') return f[fn]()
       else return f[fn[0]](fn[1])
     }, yup)
   })
+  console.log(yupResult)
   return yup.object().shape(yupResult)
 }

@@ -27,7 +27,7 @@ async function findRegistrations() {
   try {
     registrations.value = await lckWorkspaceHM.tables.registration.record.find({
       query: {
-        $joinRelated: '[membership_person,activity_course]',
+        $fetch: '[membership_person,activity_course]',
         $limit: pagination.value.limit,
         $skip: pagination.value.skip
         // lastname: {

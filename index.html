@@ -1,19 +1,18 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en" class="h-full">
   <head>
-    <meta charset="UTF-8">
-    <link rel="icon" href="/favicon.ico">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <link rel="icon" href="/assets/logo_hm.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Héric Musique</title>
   </head>
   <body class="bg-slate-100 h-full">
-    <div id="app" class="flex flex-col h-full">
-      Loading the app...
-    </div>
+    <div id="app" class="flex flex-col h-full">Loading the app...</div>
     <script type="module" src="/src/main.ts"></script>
     <script>
       const LCK_SETTINGS = {
-        API_URL: "https://next.locokit.io/api",
+        API_URL: 'https://next.locokit.io/api',
+        // API_URL: 'http://localhost:3030',
         LOCALSTORAGE_KEY_AUTH_TOKEN: 'hm-auth-token',
         LOCALSTORAGE_KEY_AUTH_USER: 'hm-auth-user',
         LOCALSTORAGE_KEY_USER_GROUPS: 'hm-user-groups',
@@ -35,12 +34,9 @@
       }
       const HM_VERSION = '0.0.1'
 
-      const TABLE_IDS_TO_STORE_OFFLINE = [
-      ]
+      const TABLE_IDS_TO_STORE_OFFLINE = []
 
-      const TABLE_VIEW_IDS_TO_STORE_OFFLINE = [
-      ]
+      const TABLE_VIEW_IDS_TO_STORE_OFFLINE = []
     </script>
-
   </body>
 </html>

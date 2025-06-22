@@ -32,8 +32,8 @@ const mainStyle = computed(() => {
       <router-link to="/" class="flex justify-between items-center">
         <img
           alt="Héric Musique logo"
-          src="/favicon-256x256.png"
-          class="inline-block mr-2 lg:mr-4 h-8"
+          src="/assets/logo_hm.png"
+          class="inline-block mr-2 lg:mr-4 h-12"
         />
         <h1 class="text-xl font-medium hidden md:block">Héric Musique</h1>
       </router-link>

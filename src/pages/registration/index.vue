@@ -74,8 +74,10 @@ async function sendFormRecord(values: Record<string, any>) {
       }
     )
     const json = await response.json()
-    if (json.status === 'OK') stateForm.value.success = true
-    else {
+    if (json.status === 'OK') {
+      stateForm.value.success = true
+      localStorage.setItem('hm-data-form', JSON.stringify(defaultDataForm))
+    } else {
       stateForm.value.success = false
       stateForm.value.errors.push(
         "Une erreur est survenue lors de la finalisation de votre inscription... Merci de prendre contact avec l'équipe d'Héric Musique sur le mail hericmusique@gmail.com"
@@ -117,7 +119,7 @@ function goToStep(index: number) {
     class="mx-auto w-full max-w-[64rem] bg-white my-4 border p-4 md:p-8 rounded-md flex flex-col"
   >
     <ol
-      class="items-center justify-center w-full space-y-4 flex space-x-8 space-y-0 mb-4 lg:mb-8 pb-2 lg:pb-4 border-b overflow-auto"
+      class="items-center justify-center w-full flex space-x-8 space-y-0 mb-4 lg:mb-8 pb-2 lg:pb-4 border-b overflow-auto"
     >
       <li
         class="flex items-center space-x-2.5 px-2"
@@ -147,7 +149,7 @@ function goToStep(index: number) {
       </li>
     </ol>
 
-    <h2 class="text-xl font-medium text-center mb-4">
+    <h2 class="text-2xl text-center mb-4">
       {{ currentStep.label['fr-FR'] }}
     </h2>
 
@@ -157,26 +159,95 @@ function goToStep(index: number) {
 
     <div class="px-2 lg:px-4 w-full flex flex-col justify-center">
       <template v-if="stateForm.currentStepIndex === 0">
-        <p class="text-lg text-center my-4">
-          Bienvenue sur le site d'inscription d'Héric Musique !
-        </p>
+        <h3 class="text-xl text-center my-4">
+          Bienvenue sur le formulaire d'inscription d'Héric Musique !
+        </h3>
+        <img src="/assets/heric_musique_800.png" class="w-48 mx-auto mb-4" />
         <p class="mb-4">
           Vous allez procéder au renseignement du formulaire d'inscription pour l'école de musique
-          d'Héric, pour la saison 2024-2025.
+          d'Héric, pour la saison 2025-2026.
         </p>
-        <h2 class="text-xl font-bold mb-4">Tarifs 2024-2025</h2>
+        <h2 class="text-xl font-bold mb-4">Tarifs 2025-2026</h2>
         <p class="mb-4">
           Vous pouvez retrouver les tarifs des différentes activités en téléchargeant
-          <a href="tarifs_2024_2025.pdf" target="_blank" class="underline">
+          <a
+            href="https://www.hericmusique.fr/wp-content/uploads/2025/05/HM_Tarifs_2025-2026-1.pdf"
+            target="_blank"
+            class="underline"
+          >
             le fichier disponible ici.
           </a>
-          <br />
-          Nous avons augmenté de modérément les tarifs cette année afin d'absorber une partie des
-          évolutions à la hausse des charges de l'école de musique.
         </p>
 
+        <p class="mb-2">
+          <strong>À noter</strong>, pour la rentrée 2025-2026, dans l'objectif d'aider les familles,
+          nous procédons à une <strong>réduction de 10% à partir de la 2ème activité</strong>.
+          <br />
+          Ces 10% s'appliquent pour l'activité la ou les moins onéreuse•s.
+          <br />
+          Prenons l'exemple d'une famille en tranche 4 avec :
+        </p>
+
+        <ul class="ml-4 list-disc mb-2">
+          <li>une activité cycle 1, piano</li>
+          <li>une activité cycle 2, accordéon</li>
+          <li>une activité chorale enfant</li>
+        </ul>
+
+        <p>Cela donnera la facturation suivante :</p>
+
+        <table class="mx-auto my-2 text-right">
+          <thead>
+            <tr>
+              <th class="text-left">Libellé</th>
+              <th class="px-2">Prix unitaire</th>
+              <th class="px-2">Quantité</th>
+              <th class="px-2">Réduction</th>
+              <th class="px-2">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="px-2 text-left">Activité cycle 1, piano</td>
+              <td class="px-2">575 €</td>
+              <td class="px-2">1</td>
+              <td class="px-2">10%</td>
+              <td class="px-2">517,5 €</td>
+            </tr>
+            <tr>
+              <td class="px-2 text-left">Activité cycle 1, accordéon</td>
+              <td class="px-2">635 €</td>
+              <td class="px-2">1</td>
+              <td class="px-2"></td>
+              <td class="px-2">635 €</td>
+            </tr>
+            <tr>
+              <td class="px-2 text-left">Chorale enfant</td>
+              <td class="px-2">120 €</td>
+              <td class="px-2">1</td>
+              <td class="px-2">10%</td>
+              <td class="px-2">108 €</td>
+            </tr>
+            <tr>
+              <td class="px-2 text-left">Adhésion à l'asso</td>
+              <td class="px-2">25 €</td>
+              <td class="px-2">1</td>
+              <td class="px-2"></td>
+              <td class="px-2">25 €</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <th></th>
+              <th></th>
+              <th></th>
+              <th class="px-2">Total</th>
+              <th class="px-2">1285,5 €</th>
+            </tr>
+          </tfoot>
+        </table>
         <p class="mb-4">
-          À titre indicatif, voici le <strong>planning de la saison 2023-2024</strong> :
+          À titre indicatif, voici le <strong>planning de la saison 2024-2025</strong> :
         </p>
 
         <ul>
