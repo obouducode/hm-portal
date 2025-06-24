@@ -1,20 +1,12 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import DataForm from '@/components/data-form.vue'
-import MultiDataForm from '@/components/multi-data-form.vue'
 import PrimeButton from 'primevue/button'
-import { formRecord } from './form-record'
-import { type FormRecordStep } from '@/declarations'
-
-definePage({
-  meta: {
-    displayHeader: true,
-    displayFooter: true
-  }
-})
+import { formRecord } from './form-record-2'
+import GenericForm from '@/components/generic-form-array.vue'
+import { type FormRecordStep, type FormValues } from '@/declarations'
 
 const stateForm = ref({
-  currentStepIndex: 0,
+  currentStepIndex: 1,
   maxStepIndex: 0,
   dataForm: {} as Record<string, string | number | any[]>,
   errors: [] as any[],
@@ -61,7 +53,7 @@ async function sendFormRecord(values: Record<string, any>) {
   stateForm.value.submitting = true
   try {
     const response = await fetch(
-      'https://next.locokit.io/api/workspace/hm_bo/workflow/inscription_2024_2025/run',
+      'https://next.locokit.io/api/workspace/hm_bo/workflow/inscription_2025_2026/run',
       {
         method: 'POST',
         headers: {
@@ -94,6 +86,7 @@ async function sendFormRecord(values: Record<string, any>) {
  * and upgrade to the next step
  */
 function manageNextStep(values?: Record<string, any>) {
+  console.log('manageNextStep', values)
   if (values) {
     Object.keys(values).forEach((key) => {
       stateForm.value.dataForm[key] = values[key]
@@ -116,10 +109,10 @@ function goToStep(index: number) {
 
 <template>
   <div
-    class="mx-auto w-full max-w-[64rem] bg-white my-4 border p-4 md:p-8 rounded-md flex flex-col"
+    class="mx-auto w-full max-w-[64rem] bg-white my-4 border p-4 md:p-8 rounded-md flex flex-col relative"
   >
     <ol
-      class="items-center justify-center w-full flex space-x-8 space-y-0 mb-4 lg:mb-8 pb-2 lg:pb-4 border-b overflow-auto"
+      class="items-center lg:justify-center flex space-x-8 space-y-0 py-2 mb-4 lg:mb-8 pb-2 lg:pb-4 border-b overflow-auto sticky top-0 bg-white"
     >
       <li
         class="flex items-center space-x-2.5 px-2"
@@ -143,21 +136,23 @@ function goToStep(index: number) {
         </span>
         <span>
           <h3 class="font-medium leading-tight">
-            {{ step.label['fr-FR'] }}
+            {{ step.label }}
           </h3>
         </span>
       </li>
     </ol>
 
     <h2 class="text-2xl text-center mb-4">
-      {{ currentStep.label['fr-FR'] }}
+      {{ currentStep.label }}
     </h2>
 
-    <p v-if="currentStep.description" class="px-2 lg:px-4 mb-4">
-      {{ currentStep.description?.['fr-FR'] }}
-    </p>
+    <template v-if="currentStep.description">
+      <p class="px-2 lg:px-4 mb-4" v-for="(line, index) in currentStep.description" :key="index">
+        {{ line }}
+      </p>
+    </template>
 
-    <div class="px-2 lg:px-4 w-full flex flex-col justify-center">
+    <div class="px-2 lg:px-4 w-full flex flex-col justify-center overflow-hidden">
       <template v-if="stateForm.currentStepIndex === 0">
         <h3 class="text-xl text-center my-4">
           Bienvenue sur le formulaire d'inscription d'Héric Musique !
@@ -276,16 +271,26 @@ function goToStep(index: number) {
       </template>
 
       <template v-else-if="stateForm.currentStepIndex < formRecord.steps.length - 1">
-        <multi-data-form
-          v-if="currentStep.array"
-          :step="currentStep"
-          :initial-values="{ data: stateForm.dataForm[currentStep.property!] }"
-          @submit="manageNextStep"
-        />
-        <data-form
-          v-else
-          :step="currentStep"
-          :initial-data="stateForm.dataForm"
+        <generic-form
+          :fields="currentStep.fields!"
+          :initial-values="
+            currentStep.array
+              ? (stateForm.dataForm[currentStep.property!] as FormValues[])
+              : stateForm.dataForm
+          "
+          :labels="{
+            submit: `Passer à l'étape suivante`,
+            addRecord: 'Ajouter une activité',
+            removeRecord: `Supprimer l'activité`
+          }"
+          :buttons="{
+            submit: true,
+            cancel: false,
+            reset: false
+          }"
+          :array="currentStep.array"
+          :record-title="currentStep.recordTitle"
+          button-position="block"
           @submit="manageNextStep"
         />
       </template>
@@ -304,7 +309,11 @@ function goToStep(index: number) {
           <p class="mb-2">
             Si vous pensez avoir finalisé votre inscription, merci de nous indiquer la conduite à
             tenir concernant le droit à l'image,
-            <a href="/2024-hm-reglement-interieur.pdf" target="_blank" class="underline">
+            <a
+              href="https://www.hericmusique.fr/wp-content/uploads/2025/05/Reglement-interieur-2025.pdf"
+              target="_blank"
+              class="underline"
+            >
               lisez le règlement intérieur disponible ici
             </a>
             puis cochez la case vous engageant à le respecter.
@@ -321,7 +330,7 @@ function goToStep(index: number) {
             Votre inscription sera considérée comme
             <span class="font-medium">définitive</span>
             à la réception de votre paiement. Vous pouvez nous l'apporter lors du forum des
-            associations, le 7 septembre 2024.
+            associations, le 7 septembre 2025.
           </p>
           <p>
             N'oubliez pas également de nous fournir

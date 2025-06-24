@@ -1,19 +1,25 @@
-type I18nLang = 'fr-FR' | 'en-EN'
+import type { LocoKitFormField } from '@locokit/definitions'
+import type { FormFieldState } from '@primevue/forms'
 
 type FormRecordFieldInput =
-  'boolean' |
-  'oneline-text' | 'multiline-text' |
-  'number' | 'float' |
-  'date' | 'datetime' |
-  'single-data' | 'multi-data' |
-  'single-related-data' | 'multi-related-data' |
+  | 'boolean'
+  | 'oneline-text'
+  | 'multiline-text'
+  | 'number'
+  | 'float'
+  | 'date'
+  | 'datetime'
+  | 'single-data'
+  | 'multi-data'
+  | 'single-related-data'
+  | 'multi-related-data'
   // none will be a display-only field
-  'none'
+  | 'none'
 
 interface FormRecordBase {
-  label: Record<I18nLang, string>
-  placeholder?: Record<I18nLang, string>
-  description?: Record<I18nLang, string>
+  label: string
+  placeholder?: string
+  description?: string[]
 }
 
 /**
@@ -32,11 +38,19 @@ interface FormRecordFieldBase extends FormRecordBase {
    */
   attributes?: Record<string, any>
   rules?: Partial<{
+    /**
+     * A field can be required only if it's displayed
+     */
     required: boolean
     match: string | number
     minLength: number
     maxLength: number
   }>
+  conditionalDisplay?: {
+    fieldId: string
+    operator: '$eq' | '$neq' | '$in' | '$nin'
+    value: any
+  }
 }
 
 /**
@@ -115,13 +129,18 @@ interface FormRecordFieldMultiRelatedData extends FormRecordFieldBase {
   labelField: string
 }
 
-type FormRecordField =
-  FormRecordFieldBoolean |
-  FormRecordFieldOnelineText | FormRecordFieldMultilineText |
-  FormRecordFieldNumber | FormRecordFieldFloat |
-  FormRecordFieldDate | FormRecordFieldDatetime |
-  FormRecordFieldSingleData | FormRecordFieldMultiData |
-  FormRecordFieldSingleRelatedData | FormRecordFieldMultiRelatedData
+export type FormRecordField =
+  | FormRecordFieldBoolean
+  | FormRecordFieldOnelineText
+  | FormRecordFieldMultilineText
+  | FormRecordFieldNumber
+  | FormRecordFieldFloat
+  | FormRecordFieldDate
+  | FormRecordFieldDatetime
+  | FormRecordFieldSingleData
+  | FormRecordFieldMultiData
+  | FormRecordFieldSingleRelatedData
+  | FormRecordFieldMultiRelatedData
 
 /**
  * Display element for a form
@@ -145,7 +164,7 @@ export interface FormRecordStep extends FormRecordBase {
    * Can be empty if the step
    * is for display purpose
    */
-  fields?: FormRecordField[]
+  fields?: LocoKitFormField[]
 
   /**
    * How the fields are displayed to the user
@@ -168,10 +187,16 @@ export interface FormRecordStep extends FormRecordBase {
    * Do this property a multiple one,
    * and if so, we store values in an array.
    *
-   * Max items can be set too to limit the number of items.
+   * Max records can be set too to limit the number of records.
    */
   array?: boolean
-  maxItems?: number
+  maxRecords?: number
+  recordTitle?: (
+    record: {
+      [key: string]: FormFieldState
+    },
+    idx: number
+  ) => string
 
   /**
    * Is this step a summary ?
@@ -206,5 +231,9 @@ export interface FormRecord extends FormRecordBase {
    * do we store data in local storage temporary,
    * to allow user go back to input, later in time
    */
-
 }
+
+export type FormValues = Record<
+  string,
+  string | number | boolean | Object | null | string[] | number[] | boolean[]
+>
