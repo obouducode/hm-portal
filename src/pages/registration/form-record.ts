@@ -2,6 +2,53 @@ import { type FormRecord } from '@/declarations'
 import { FIELD_COMPONENT, FIELD_TYPE } from '@locokit/definitions'
 import type { FormFieldState } from '@primevue/forms'
 
+const workshops = [
+  {
+    label: 'Les sons et le souffle (Sophie)',
+    value: 'sophie_sons_souffle'
+  },
+  {
+    label: 'Batucada enfant (Olaf)',
+    value: 'olaf_batucada'
+  },
+  {
+    label: 'Carnaval (Virginie)',
+    value: 'virginie_carnaval'
+  },
+  {
+    label: 'Répertoire « Les Ogres de Barback » (Martine)',
+    value: 'martine_ogres'
+  },
+  {
+    label: 'Le rythme signé (Régis)',
+    value: 'regis_rythme_signe'
+  },
+  {
+    label: 'Atelier batterie / piano / sax (Sophie)',
+    value: 'sophie_atelier_3instrus'
+  },
+  {
+    label: 'Stage musescore / prise de son (Patrick)',
+    value: 'patrick_musescore'
+  },
+  {
+    label: 'Atelier de création musicale',
+    value: '???'
+  },
+  {
+    label: 'Projet spectacle (Ellen)',
+    value: 'ellen_projet_spectacle'
+  },
+  {
+    label: 'Atelier Musiques actuelles ou improvisées « jazz » (cycle 2 et HC)',
+    value: 'Atelier Musiques actuelles ou improvisées « jazz » (cycle 2 et HC)'
+  },
+  {
+    label: 'Atelier « rock » (cycle 2 et HC)',
+    value: 'Atelier « rock » (cycle 2 et HC)'
+  }
+]
+
 export const formRecord: FormRecord = {
   label: 'Formulaire inscription',
   description: [''],
@@ -506,28 +553,11 @@ export const formRecord: FormRecord = {
         {
           label: 'Atelier musical (choix 1)',
           description: ['Vous pouvez choisir 3 projets par ordre de priorité'],
-          id: 'activity_workshop_choice',
+          id: 'activity_workshop_choice_1',
           type: FIELD_TYPE.STRING,
           component: FIELD_COMPONENT.SINGLE_SELECT,
           source: {
-            options: [
-              {
-                label: 'Atelier Virginie Carnaval',
-                value: 'first_year'
-              },
-              {
-                label: 'Atelier Ellen Chant',
-                value: 'second'
-              },
-              {
-                label: 'Atelier Martine les Ogres de Barbak',
-                value: 'third'
-              },
-              {
-                label: 'Atelier Sophie Groupe',
-                value: 'fourth'
-              }
-            ],
+            options: workshops,
             label: 'label',
             value: 'value'
           },
@@ -545,8 +575,8 @@ export const formRecord: FormRecord = {
                 conditions: [
                   {
                     fieldId: 'activity_course',
-                    operator: '$eq',
-                    value: '2025_instru_cycle1'
+                    operator: '$in',
+                    value: ['2025_instru_cycle1', '2025_instru_cycle2']
                   }
                 ],
                 impact: {
@@ -567,24 +597,7 @@ export const formRecord: FormRecord = {
           type: FIELD_TYPE.STRING,
           component: FIELD_COMPONENT.SINGLE_SELECT,
           source: {
-            options: [
-              {
-                label: 'Atelier Virginie Carnaval',
-                value: 'first_year'
-              },
-              {
-                label: 'Atelier Ellen Chant',
-                value: 'second'
-              },
-              {
-                label: 'Atelier Martine les Ogres de Barbak',
-                value: 'third'
-              },
-              {
-                label: 'Atelier Sophie Groupe',
-                value: 'fourth'
-              }
-            ],
+            options: workshops,
             label: 'label',
             value: 'value'
           },
@@ -602,8 +615,8 @@ export const formRecord: FormRecord = {
                 conditions: [
                   {
                     fieldId: 'activity_course',
-                    operator: '$eq',
-                    value: '2025_instru_cycle1'
+                    operator: '$in',
+                    value: ['2025_instru_cycle1', '2025_instru_cycle2']
                   }
                 ],
                 impact: {
@@ -621,24 +634,7 @@ export const formRecord: FormRecord = {
           type: FIELD_TYPE.STRING,
           component: FIELD_COMPONENT.SINGLE_SELECT,
           source: {
-            options: [
-              {
-                label: 'Atelier Virginie Carnaval',
-                value: 'first_year'
-              },
-              {
-                label: 'Atelier Ellen Chant',
-                value: 'second'
-              },
-              {
-                label: 'Atelier Martine les Ogres de Barbak',
-                value: 'third'
-              },
-              {
-                label: 'Atelier Sophie Groupe',
-                value: 'fourth'
-              }
-            ],
+            options: workshops,
             label: 'label',
             value: 'value'
           },
@@ -656,63 +652,8 @@ export const formRecord: FormRecord = {
                 conditions: [
                   {
                     fieldId: 'activity_course',
-                    operator: '$eq',
-                    value: '2025_instru_cycle1'
-                  }
-                ],
-                impact: {
-                  display: {
-                    visible: true
-                  }
-                }
-              }
-            ]
-          }
-        },
-        {
-          label: 'Atelier musical',
-          description: ['Vous pouvez choisir 3 projets par ordre de priorité'],
-          id: 'activity_workshop_choice_1',
-          type: FIELD_TYPE.STRING,
-          component: FIELD_COMPONENT.SINGLE_SELECT,
-          source: {
-            options: [
-              {
-                label: 'Atelier Virginie Carnaval',
-                value: 'first_year'
-              },
-              {
-                label: 'Atelier Ellen Chant',
-                value: 'second'
-              },
-              {
-                label: 'Atelier Martine les Ogres de Barbak',
-                value: 'third'
-              },
-              {
-                label: 'Atelier Sophie Groupe',
-                value: 'fourth'
-              }
-            ],
-            label: 'label',
-            value: 'value'
-          },
-          settings: {
-            default: {
-              display: {
-                visible: false
-              },
-              validation: {
-                required: false
-              }
-            },
-            rules: [
-              {
-                conditions: [
-                  {
-                    fieldId: 'activity_course',
-                    operator: '$eq',
-                    value: '2025_instru_cycle1'
+                    operator: '$in',
+                    value: ['2025_instru_cycle1', '2025_instru_cycle2']
                   }
                 ],
                 impact: {
