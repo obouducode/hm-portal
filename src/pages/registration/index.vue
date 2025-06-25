@@ -59,7 +59,7 @@ async function sendFormRecord(values: Record<string, any>) {
   stateForm.value.submitting = true
   try {
     const response = await fetch(
-      'https://next.locokit.io/api/workspace/hm_bo/workflow/inscription_2024_2025/run',
+      'https://next.locokit.io/api/workspace/hm_bo/workflow/inscription_2025_2026/run',
       {
         method: 'POST',
         headers: {
@@ -427,7 +427,12 @@ function goToStep(index: number) {
         </div>
 
         <div v-else class="border p-8 rounded-md font-medium w-auto mx-auto text-center shadow-md">
-          Bravo !!! Votre inscription est finalisée !!!
+          <p class="mb-4">Bravo !!! Votre inscription est finalisée !!!</p>
+
+          <p>
+            Merci de nous faire parvenir votre paiement au plus tôt, et de nous en informer par mail
+            (de préférence) ou téléphone.
+          </p>
         </div>
       </template>
     </div>

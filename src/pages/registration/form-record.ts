@@ -329,6 +329,88 @@ export const formRecord: FormRecord = {
           }
         },
         {
+          id: 'activity_instrument',
+          label: 'Instrument',
+          description: ["Si applicable, choisir l'instrument"],
+          type: FIELD_TYPE.STRING,
+          component: FIELD_COMPONENT.SINGLE_SELECT,
+          source: {
+            options: [
+              {
+                label: 'Accordéon',
+                value: 'accordeon'
+              },
+              {
+                label: 'Basse',
+                value: 'basse'
+              },
+              {
+                label: 'Batterie',
+                value: 'batterie'
+              },
+              {
+                label: 'Clarinette',
+                value: 'clarinette'
+              },
+              {
+                label: 'Contrebasse',
+                value: 'contrebasse'
+              },
+              {
+                label: 'Flûte',
+                value: 'flute'
+              },
+              {
+                label: 'Guitare classique',
+                value: 'guitare_classique'
+              },
+              {
+                label: 'Guitare électrique',
+                value: 'guitare_electrique'
+              },
+              {
+                label: 'Piano',
+                value: 'piano'
+              },
+              {
+                label: 'Saxophone',
+                value: 'saxophone'
+              }
+            ],
+            label: 'label',
+            value: 'value'
+          },
+          settings: {
+            default: {
+              display: {
+                visible: false
+              },
+              validation: {
+                required: false
+              }
+            },
+            rules: [
+              {
+                conditions: [
+                  {
+                    fieldId: 'activity_course',
+                    operator: '$in',
+                    value: ['2025_instru_cycle1', '2025_instru_cycle2']
+                  }
+                ],
+                impact: {
+                  display: {
+                    visible: true
+                  },
+                  validation: {
+                    required: true
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
           id: 'activity_teach_year',
           label: 'Formation musicale',
           description: ["Si applicable, choisir l'année de la formation musicale"],
@@ -422,52 +504,28 @@ export const formRecord: FormRecord = {
           }
         },
         {
-          id: 'activity_instrument',
-          label: 'Instrument',
-          description: ["Si applicable, choisir l'instrument"],
+          label: 'Atelier musical (choix 1)',
+          description: ['Vous pouvez choisir 3 projets par ordre de priorité'],
+          id: 'activity_workshop_choice',
           type: FIELD_TYPE.STRING,
           component: FIELD_COMPONENT.SINGLE_SELECT,
           source: {
             options: [
               {
-                label: 'Accordéon',
-                value: 'accordeon'
+                label: 'Atelier Virginie Carnaval',
+                value: 'first_year'
               },
               {
-                label: 'Basse',
-                value: 'basse'
+                label: 'Atelier Ellen Chant',
+                value: 'second'
               },
               {
-                label: 'Batterie',
-                value: 'batterie'
+                label: 'Atelier Martine les Ogres de Barbak',
+                value: 'third'
               },
               {
-                label: 'Clarinette',
-                value: 'clarinette'
-              },
-              {
-                label: 'Contrebasse',
-                value: 'contrebasse'
-              },
-              {
-                label: 'Flûte',
-                value: 'flute'
-              },
-              {
-                label: 'Guitare classique',
-                value: 'guitare_classique'
-              },
-              {
-                label: 'Guitare électrique',
-                value: 'guitare_electrique'
-              },
-              {
-                label: 'Piano',
-                value: 'piano'
-              },
-              {
-                label: 'Saxophone',
-                value: 'saxophone'
+                label: 'Atelier Sophie Groupe',
+                value: 'fourth'
               }
             ],
             label: 'label',
@@ -487,8 +545,8 @@ export const formRecord: FormRecord = {
                 conditions: [
                   {
                     fieldId: 'activity_course',
-                    operator: '$in',
-                    value: ['2025_instru_cycle1', '2025_instru_cycle2']
+                    operator: '$eq',
+                    value: '2025_instru_cycle1'
                   }
                 ],
                 impact: {
@@ -497,6 +555,169 @@ export const formRecord: FormRecord = {
                   },
                   validation: {
                     required: true
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          label: 'Atelier musical (choix 2)',
+          id: 'activity_workshop_choice_2',
+          type: FIELD_TYPE.STRING,
+          component: FIELD_COMPONENT.SINGLE_SELECT,
+          source: {
+            options: [
+              {
+                label: 'Atelier Virginie Carnaval',
+                value: 'first_year'
+              },
+              {
+                label: 'Atelier Ellen Chant',
+                value: 'second'
+              },
+              {
+                label: 'Atelier Martine les Ogres de Barbak',
+                value: 'third'
+              },
+              {
+                label: 'Atelier Sophie Groupe',
+                value: 'fourth'
+              }
+            ],
+            label: 'label',
+            value: 'value'
+          },
+          settings: {
+            default: {
+              display: {
+                visible: false
+              },
+              validation: {
+                required: false
+              }
+            },
+            rules: [
+              {
+                conditions: [
+                  {
+                    fieldId: 'activity_course',
+                    operator: '$eq',
+                    value: '2025_instru_cycle1'
+                  }
+                ],
+                impact: {
+                  display: {
+                    visible: true
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          label: 'Atelier musical (choix 3)',
+          id: 'activity_workshop_choice_3',
+          type: FIELD_TYPE.STRING,
+          component: FIELD_COMPONENT.SINGLE_SELECT,
+          source: {
+            options: [
+              {
+                label: 'Atelier Virginie Carnaval',
+                value: 'first_year'
+              },
+              {
+                label: 'Atelier Ellen Chant',
+                value: 'second'
+              },
+              {
+                label: 'Atelier Martine les Ogres de Barbak',
+                value: 'third'
+              },
+              {
+                label: 'Atelier Sophie Groupe',
+                value: 'fourth'
+              }
+            ],
+            label: 'label',
+            value: 'value'
+          },
+          settings: {
+            default: {
+              display: {
+                visible: false
+              },
+              validation: {
+                required: false
+              }
+            },
+            rules: [
+              {
+                conditions: [
+                  {
+                    fieldId: 'activity_course',
+                    operator: '$eq',
+                    value: '2025_instru_cycle1'
+                  }
+                ],
+                impact: {
+                  display: {
+                    visible: true
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          label: 'Atelier musical',
+          description: ['Vous pouvez choisir 3 projets par ordre de priorité'],
+          id: 'activity_workshop_choice_1',
+          type: FIELD_TYPE.STRING,
+          component: FIELD_COMPONENT.SINGLE_SELECT,
+          source: {
+            options: [
+              {
+                label: 'Atelier Virginie Carnaval',
+                value: 'first_year'
+              },
+              {
+                label: 'Atelier Ellen Chant',
+                value: 'second'
+              },
+              {
+                label: 'Atelier Martine les Ogres de Barbak',
+                value: 'third'
+              },
+              {
+                label: 'Atelier Sophie Groupe',
+                value: 'fourth'
+              }
+            ],
+            label: 'label',
+            value: 'value'
+          },
+          settings: {
+            default: {
+              display: {
+                visible: false
+              },
+              validation: {
+                required: false
+              }
+            },
+            rules: [
+              {
+                conditions: [
+                  {
+                    fieldId: 'activity_course',
+                    operator: '$eq',
+                    value: '2025_instru_cycle1'
+                  }
+                ],
+                impact: {
+                  display: {
+                    visible: true
                   }
                 }
               }
