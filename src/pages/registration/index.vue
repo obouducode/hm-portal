@@ -253,7 +253,7 @@ function goToStep(index: number) {
           À titre indicatif, voici le <strong>planning estimé de la saison 2025-2026</strong> :
         </p>
 
-        <ul>
+        <ul class="ml-4 list-disc mb-2">
           <li><b>Chorale adultes</b> : mercredi soir</li>
           <li><b>Chorale enfants</b> : jeudi soir</li>
           <li><b>Chant individuel, technique vocale</b> : jeudi soir</li>
@@ -383,12 +383,17 @@ function goToStep(index: number) {
           <p class="text-center text-lg font-bold my-4">
             ATTENTION !!! MERCI DE LIRE ATTENTIVEMENT !!!
           </p>
-          <p class="mb-2">
-            Votre inscription sera considérée comme
-            <span class="font-medium">définitive</span>
-            à la réception de votre paiement. Vous pouvez nous l'apporter lors du forum des
-            associations, le 6 septembre 2025 ou nous le transmettre en main propre.
+          <p class="mb-2 font-medium">
+            Votre inscription sera considérée comme définitive à la réception de votre paiement.
           </p>
+          <p>Vous pouvez</p>
+          <ul class="ml-4 list-disc mb-2">
+            <li>nous l'apporter lors du forum des associations le 6 septembre 2025</li>
+            <li>nous le transmettre en main propre</li>
+            <li>
+              nous le déposer dans une enveloppe en mairie en précisant que c'est pour Héric Musique
+            </li>
+          </ul>
           <p>
             N'oubliez pas également de nous fournir
             <span class="font-medium">votre attestation CAF</span> concernant le quotient familial
