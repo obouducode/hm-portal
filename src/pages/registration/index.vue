@@ -115,15 +115,15 @@ function goToStep(index: number) {
 
 <template>
   <div
-    class="mx-auto w-full max-w-[64rem] bg-white my-8 border p-4 md:p-8 rounded-md flex flex-col relative"
+    class="mx-auto w-full max-w-[64rem] bg-white text-slate-900 dark:bg-slate-900 dark:text-white my-8 border p-4 md:p-8 rounded-md flex flex-col relative"
   >
     <ol
-      class="items-center lg:justify-center flex space-x-8 space-y-0 py-2 mb-4 lg:mb-8 pb-2 lg:pb-4 border-b overflow-auto sticky top-0 bg-white"
+      class="items-center lg:justify-center flex space-x-8 space-y-0 py-2 mb-4 lg:mb-8 pb-2 lg:pb-4 border-b overflow-auto sticky top-0 bg-white text-slate-900 dark:bg-slate-900 dark:text-white"
     >
       <li
         class="flex items-center space-x-2.5 px-2"
         :class="{
-          'text-primary-600 dark:text-primary-500': stateForm.currentStepIndex === index,
+          'text-primary-600 dark:text-white': stateForm.currentStepIndex === index,
           'opacity-50 cursor-not-allowed': index > stateForm.maxStepIndex,
           'cursor-pointer': index <= stateForm.maxStepIndex
         }"
@@ -134,7 +134,7 @@ function goToStep(index: number) {
         <span
           class="flex items-center justify-center w-8 h-8 border border-primary-400 rounded-full shrink-0 dark:border-primary-500"
           :class="{
-            'text-white bg-primary-400 dark:text-primary-500 border-r border-l':
+            'text-white bg-primary-400 dark:text-white border-r border-l':
               stateForm.currentStepIndex === index
           }"
         >
