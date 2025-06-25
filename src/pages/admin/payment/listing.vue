@@ -4,7 +4,6 @@ import { onMounted, ref } from 'vue'
 import { lckWorkspaceHM } from '@/sdk/lckWorkspaceHM'
 import PrimeDatatable from 'primevue/datatable'
 import PrimeColumn from 'primevue/column'
-import PrimeTag from 'primevue/tag'
 import type { PageState } from 'primevue/paginator'
 
 definePage({

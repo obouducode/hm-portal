@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { SignInForm } from '@locokit/designsystem'
+import { SignInForm } from '@locokit/vue-components'
 import { useStoreAuth } from '@/stores/auth'
 import { useRouter } from 'vue-router'
 

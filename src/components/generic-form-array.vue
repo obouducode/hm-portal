@@ -143,6 +143,26 @@
                   fluid
                 />
 
+                <!-- radio -->
+                <PrimeRadioButtonGroup
+                  :name="f.id"
+                  :class="f.class"
+                  :id="f.id"
+                  v-else-if="f.component === FIELD_COMPONENT.INPUT_RADIO"
+                >
+                  <div
+                    class="flex items-center gap-2"
+                    v-for="option in f.source.options"
+                    :key="option[f.source.value]"
+                  >
+                    <PrimeRadioButton
+                      :inputId="option[f.source.value]"
+                      :value="option[f.source.value]"
+                    />
+                    <label :for="option[f.source.value]">{{ option[f.source.label] }}</label>
+                  </div>
+                </PrimeRadioButtonGroup>
+
                 <!-- single select -->
                 <PrimeSelect
                   v-else-if="f.component === FIELD_COMPONENT.SINGLE_SELECT"
@@ -355,6 +375,26 @@
               fluid
             />
 
+            <!-- radio -->
+            <PrimeRadioButtonGroup
+              :name="f.id"
+              :class="f.class"
+              :id="f.id"
+              v-else-if="f.component === FIELD_COMPONENT.INPUT_RADIO"
+            >
+              <div
+                class="flex items-center gap-2"
+                v-for="option in f.source.options"
+                :key="option[f.source.value]"
+              >
+                <PrimeRadioButton
+                  :inputId="option[f.source.value]"
+                  :value="option[f.source.value]"
+                />
+                <label :for="option[f.source.value]">{{ option[f.source.label] }}</label>
+              </div>
+            </PrimeRadioButtonGroup>
+
             <!-- single select -->
             <PrimeSelect
               v-else-if="f.component === FIELD_COMPONENT.SINGLE_SELECT"
@@ -528,6 +568,8 @@ import PrimeInputNumber from 'primevue/inputnumber'
 import PrimeInputText from 'primevue/inputtext'
 import PrimePassword from 'primevue/password'
 import PrimeSelect from 'primevue/select'
+import PrimeRadioButton from 'primevue/radiobutton'
+import PrimeRadioButtonGroup from 'primevue/radiobuttongroup'
 import PrimeTextarea from 'primevue/textarea'
 import PrimeToggleSwitch from 'primevue/toggleswitch'
 import { SingleTag } from '@locokit/vue-components'
@@ -581,6 +623,10 @@ const props = withDefaults(
      * Array management
      */
     array?: boolean
+    /**
+     * Property in which to inject when submitting form, if needed.
+     */
+    property?: string
     recordTitle?: (record: FormValues, idx: number) => string
   }>(),
   {
@@ -649,6 +695,8 @@ function getFieldsDisplayed(state, fromResolver: boolean = false, idx?: number) 
       f.settings?.default?.validation?.required !== undefined
         ? f.settings?.default.validation?.required
         : false
+
+    let hasMatch = f.settings?.default.validation?.match
 
     /**
      * For each display rule,
@@ -733,6 +781,9 @@ function getFieldsDisplayed(state, fromResolver: boolean = false, idx?: number) 
           required: isRequired
         }
       }
+      if (hasMatch) {
+        newField.validationRules.match = hasMatch
+      }
       /**
        * Compute attrs if it is a function
        * (TO BE TESTED)
@@ -804,15 +855,15 @@ function getSelectOptionValue(option: unknown, field: LocoKitFormFieldSingleSele
 
 /**
  * Resolver to say if the form is OK regarding validation rules
- * (required only actually)
+ * (required + match)
  */
 const resolver = ({ values }: FormResolverOptions) => {
   // console.log(values)
   // console.log(extractValuesFromStates(values))
-  emit('update:modelValue', extractValuesFromStates(values))
+  // emit('update:modelValue', extractValuesFromStates(values))
   const errors: Record<string, { message: string }[]> = {}
 
-  console.group('resolver')
+  // console.group('resolver')
 
   const fieldsDisplayedInForm = fieldsDisplayed(values, true).value
   // console.log(fieldsDisplayedInForm)
@@ -839,61 +890,108 @@ const resolver = ({ values }: FormResolverOptions) => {
           }
       }
     }
+    if (f.validationRules?.match) {
+      /**
+       * Add an error according to the field type
+       */
+      switch (f.type) {
+        case FIELD_TYPE.BOOLEAN:
+          if (values[f.id] !== f.validationRules?.match)
+            errors[f.id].push({
+              message: `Le champ ${f.label} doit avoir une valeur correcte.`
+            })
+          break
+        default:
+          if (values[f.id] !== f.validationRules?.match)
+            errors[f.id].push({
+              message: `Le champ ${f.label} doit avoir une valeur correcte.`
+            })
+      }
+    }
   })
-  console.error(errors)
+  console.log('feedback resolver', errors)
   // console.groupEnd('resolver')
   return {
     errors
   }
 }
 
+/**
+ * We extract all values from states,
+ * by recombining them and rebuilding arrays if needed.
+ * Beware, states can contains old array values even if fields are not displayed
+ */
 function extractValuesFromStates(states: Record<string, unknown>) {
-  const values = {}
-
-  for (const key in states) {
-    // Ignore states which are not objects or do not have a "value" property.
-    if (typeof states[key] !== 'object' || !('value' in states[key])) {
-      continue
+  let values
+  if (props.array) {
+    values = []
+    for (let i = 0; i < nbRecords.value; i++) {
+      values.push({})
     }
+  } else {
+    values = {}
+  }
 
-    // Find the field definition matching the current state.
-    const field = props.fields.find((item) => item.id === key)
+  const fieldsDisplayedInForm = fieldsDisplayed(states).value
+
+  console.log(fieldsDisplayedInForm)
+
+  fieldsDisplayedInForm.forEach((field) => {
+    // console.log(field.id, states[field.id])
+    // Ignore states which are not objects or do not have a "value" property.
+    if (typeof states[field.id] !== 'object' || !('value' in states[field.id])) {
+      return
+    }
     // No need to continue if the state does not concern one of our fields.
     // or if the found field is a readonly one
     if (!field || field.readonly) {
-      continue
+      return
     }
-    values[field.id] = states[field.id].value
+
+    let currentValue = states[field.id].value
 
     switch (field.component) {
       // Special handling of autocomplete fields whose suggestions can be objects
       // and not just strings.
-      case FIELD_COMPONENT.AUTOCOMPLETE:
-        if (field.id in autocompleteSelectedOptions.value) {
-          const option = autocompleteSelectedOptions.value[field.id]
-          if (!option) continue
-          const valueProp = (field as LocoKitFormFieldAutocomplete).source.value
-          values[field.id] = valueProp ? option[valueProp] : option
-        }
-        break
+      // case FIELD_COMPONENT.AUTOCOMPLETE:
+      //   if (field.id in autocompleteSelectedOptions.value) {
+      //     const option = autocompleteSelectedOptions.value[field.id]
+      //     if (!option) continue
+      //     const valueProp = (field as LocoKitFormFieldAutocomplete).source.value
+      //     values[field.id] = valueProp ? option[valueProp] : option
+      //   }
+      //   break
 
       // Special handling of single select fields whose suggestions can be objects
       // and not just strings or numbers.
       case FIELD_COMPONENT.SINGLE_SELECT:
-        values[field.id] = getSelectOptionValue(states[field.id].value, field)
+        currentValue = getSelectOptionValue(states[field.id].value, field)
         break
 
       // Special handling for datetime, need to be returned in the format YYYY-MM-ddTHH:mm:ss
       case FIELD_COMPONENT.INPUT_DATETIME:
+        // eslint-disable-next-line no-case-declarations
         const datetimeValue = states[field.id].value as string
         if (datetimeValue?.length === 16) {
-          values[field.id] = format(new Date(datetimeValue), "yyyy-MM-dd'T'hh:mm:ss")
+          currentValue = format(new Date(datetimeValue), "yyyy-MM-dd'T'hh:mm:ss")
         }
         break
     }
-  }
 
-  return values
+    if (props.array) {
+      const idx = parseInt(field.id.substring('form_'.length, 'form_'.length + 1))
+      const id = field.id.substring('form_x_'.length)
+      values[idx][id] = currentValue
+    } else {
+      values[field.id] = currentValue
+    }
+  })
+  // console.log(values, props.property)
+  if (props.property && props.array) {
+    return {
+      [props.property]: values
+    }
+  } else return values
 }
 
 function getSelectOptionLabel(option: unknown, field: LocoKitFormFieldSingleSelect) {
@@ -915,32 +1013,8 @@ function getSelectOptionColors(option: unknown, field: LocoKitFormFieldSingleSel
 
   return null
 }
-// function onValueChange(value: unknown, field: LocoKitFormFieldAutocomplete) {
-//   // If the value is an object, this means it matches a suggestion
-//   // which is represented by an object.
-//   if (value && typeof value === 'object') {
-//     autocompleteSelectedOptions.value[field.id] = toValue(value)
-//   } else if (field.id in autocompleteSelectedOptions.value) {
-//     delete autocompleteSelectedOptions.value[field.id]
-//   }
-// }
-
-// function onComplete(
-//   event: AutoCompleteCompleteEvent,
-//   field: LocoKitFormFieldAutocomplete,
-//   formState: Record<string, unknown>
-// ) {
-//   const values = extractValuesFromStates(formState)
-//   emit('complete', field, event, values)
-// }
-
-/**
- * Local data can be an array or an object,
- * depending initialValues typing
- */
 const localData = ref()
 const nbRecords = ref(0)
-
 function removeRecord(idx: number) {
   if (!props.array) return
   nbRecords.value--
@@ -951,7 +1025,6 @@ function addRecord() {
 }
 
 function onFormSubmit({ valid, states }: FormSubmitEvent) {
-  console.log(valid, states)
   if (valid) {
     const values = extractValuesFromStates(states)
     emit('submit', values)
@@ -967,6 +1040,16 @@ watch(
       props.initialValues.forEach((iv, idx) => {
         for (const property in iv) {
           flattenInitivalValues[`form_${idx}_${property}`] = iv[property]
+          /**
+           * Rebuild complex values as SINGLE_SELECT
+           */
+          const currentField = props.fields.find((f) => f.id === property)
+          if (currentField?.component === FIELD_COMPONENT.SINGLE_SELECT) {
+            const matchingOption = currentField.source.options.find(
+              (o) => o[currentField.source.value] === iv[property]
+            )
+            if (matchingOption) flattenInitivalValues[`form_${idx}_${property}`] = matchingOption
+          }
         }
       })
       localData.value = { ...flattenInitivalValues }
@@ -974,6 +1057,9 @@ watch(
       localData.value = {
         ...(props.initialValues || {})
       }
+      /**
+       * Rebuild complex values as SINGLE_SELECT
+       */
     }
   },
   {

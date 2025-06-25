@@ -10,17 +10,20 @@ import PrimeInputNumber from 'primevue/inputnumber'
 
 const emits = defineEmits(['submit'])
 
-const props = withDefaults(defineProps<{
-  step: FormRecordStep,
-  displaySubmitButton?: boolean,
-  initialData?: Record<string, any>,
-  submitButtonLabel?: string,
-  submitButtonDisabled?: boolean,
-}>(), {
-  displaySubmitButton: true,
-  submitButtonLabel: 'Passer à l\'étape suivante',
-  submitButtonDisabled: false,
-})
+const props = withDefaults(
+  defineProps<{
+    step: FormRecordStep
+    displaySubmitButton?: boolean
+    initialData?: Record<string, any>
+    submitButtonLabel?: string
+    submitButtonDisabled?: boolean
+  }>(),
+  {
+    displaySubmitButton: true,
+    submitButtonLabel: "Passer à l'étape suivante",
+    submitButtonDisabled: false
+  }
+)
 const schema = computed(() => buildYupSchema(props.step.fields))
 
 const dataForm = ref<Record<string, any>>({})
@@ -36,12 +39,13 @@ watch(
   () => props.initialData,
   () => {
     if (!props.initialData) return
-    Object.keys(props.initialData!).forEach(key => {
+    Object.keys(props.initialData!).forEach((key) => {
       dataForm.value[key] = props.initialData![key]
     })
-  }, {
+  },
+  {
     deep: true,
-    immediate: true,
+    immediate: true
   }
 )
 </script>
@@ -53,24 +57,15 @@ watch(
     :validation-schema="schema"
     :initial-values="props.initialData"
   >
-    <template
-      v-for="field in props.step.fields"
-      :key="field.name"
-    >
+    <template v-for="field in props.step.fields" :key="field.name">
       <label :for="field.name" class="font-medium mt-2 mb-1">
         {{ field.label['fr-FR'] }}
         <span v-if="field.rules?.required" class="text-red-500">*</span>
       </label>
-      <p
-        class="text-gray-500 italic mb-2"
-        v-if="field.description"
-      >
+      <p class="text-gray-500 italic mb-2" v-if="field.description">
         {{ field.description['fr-FR'] }}
       </p>
-      <vv-field
-        :name="field.name"
-        v-slot="{ handleChange }"
-      >
+      <vv-field :name="field.name" v-slot="{ handleChange }">
         <input
           v-if="field.input === 'oneline-text'"
           :id="field.name"
@@ -91,11 +86,7 @@ watch(
           @update:model-value="handleChange"
         />
         <template v-else-if="field.input === 'single-data'">
-          <div
-            v-for="choice in field.values"
-            :key="choice.value"
-            class="mb-2"
-          >
+          <div v-for="choice in field.values" :key="choice.value" class="mb-2">
             <input
               type="radio"
               :value="choice.value"
@@ -104,7 +95,7 @@ watch(
               :id="choice.value"
               class="mr-2"
               @update:model-value="handleChange"
-            >
+            />
             <label :for="choice.value">
               {{ choice.label['fr-FR'] }}
             </label>
@@ -137,14 +128,10 @@ watch(
           :id="field.name"
           v-bind="field.attributes"
           fluid
-            @update:model-value="handleChange"
+          @update:model-value="handleChange"
         />
       </vv-field>
-      <vv-error-message
-        :name="field.name"
-        :label="field.label['fr-FR']"
-        class="text-red-500"
-      />
+      <vv-error-message :name="field.name" :label="field.label['fr-FR']" class="text-red-500" />
     </template>
     <prime-button
       v-if="displaySubmitButton"

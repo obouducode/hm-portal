@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import DataForm from '@/components/data-form.vue'
-import MultiDataForm from '@/components/multi-data-form.vue'
 import PrimeButton from 'primevue/button'
 import { formRecord } from './form-record'
-import { type FormRecordStep } from '@/declarations'
+import GenericForm from '@/components/generic-form-array.vue'
+import { type FormRecordStep, type FormValues } from '@/declarations'
 
 definePage({
   meta: {
@@ -12,7 +11,6 @@ definePage({
     displayFooter: true
   }
 })
-
 const stateForm = ref({
   currentStepIndex: 0,
   maxStepIndex: 0,
@@ -94,6 +92,7 @@ async function sendFormRecord(values: Record<string, any>) {
  * and upgrade to the next step
  */
 function manageNextStep(values?: Record<string, any>) {
+  console.log('manageNextStep', values)
   if (values) {
     Object.keys(values).forEach((key) => {
       stateForm.value.dataForm[key] = values[key]
@@ -116,10 +115,10 @@ function goToStep(index: number) {
 
 <template>
   <div
-    class="mx-auto w-full max-w-[64rem] bg-white my-4 border p-4 md:p-8 rounded-md flex flex-col"
+    class="mx-auto w-full max-w-[64rem] bg-white my-8 border p-4 md:p-8 rounded-md flex flex-col relative"
   >
     <ol
-      class="items-center justify-center w-full flex space-x-8 space-y-0 mb-4 lg:mb-8 pb-2 lg:pb-4 border-b overflow-auto"
+      class="items-center lg:justify-center flex space-x-8 space-y-0 py-2 mb-4 lg:mb-8 pb-2 lg:pb-4 border-b overflow-auto sticky top-0 bg-white"
     >
       <li
         class="flex items-center space-x-2.5 px-2"
@@ -143,21 +142,23 @@ function goToStep(index: number) {
         </span>
         <span>
           <h3 class="font-medium leading-tight">
-            {{ step.label['fr-FR'] }}
+            {{ step.label }}
           </h3>
         </span>
       </li>
     </ol>
 
     <h2 class="text-2xl text-center mb-4">
-      {{ currentStep.label['fr-FR'] }}
+      {{ currentStep.label }}
     </h2>
 
-    <p v-if="currentStep.description" class="px-2 lg:px-4 mb-4">
-      {{ currentStep.description?.['fr-FR'] }}
-    </p>
+    <template v-if="currentStep.description">
+      <p class="px-2 lg:px-4 mb-4" v-for="(line, index) in currentStep.description" :key="index">
+        {{ line }}
+      </p>
+    </template>
 
-    <div class="px-2 lg:px-4 w-full flex flex-col justify-center">
+    <div class="px-2 lg:px-4 w-full flex flex-col justify-center overflow-hidden">
       <template v-if="stateForm.currentStepIndex === 0">
         <h3 class="text-xl text-center my-4">
           Bienvenue sur le formulaire d'inscription d'Héric Musique !
@@ -171,7 +172,7 @@ function goToStep(index: number) {
         <p class="mb-4">
           Vous pouvez retrouver les tarifs des différentes activités en téléchargeant
           <a
-            href="https://www.hericmusique.fr/wp-content/uploads/2025/05/HM_Tarifs_2025-2026-1.pdf"
+            href="https://www.hericmusique.fr/wp-content/uploads/2025/06/HM_Tarifs_2025-2026-1.pdf"
             target="_blank"
             class="underline"
           >
@@ -224,10 +225,10 @@ function goToStep(index: number) {
               </tr>
               <tr>
                 <td class="px-2 text-left">Chorale enfant</td>
-                <td class="px-2">120 €</td>
+                <td class="px-2">150 €</td>
                 <td class="px-2">1</td>
                 <td class="px-2">10%</td>
-                <td class="px-2">108 €</td>
+                <td class="px-2">135 €</td>
               </tr>
               <tr>
                 <td class="px-2 text-left">Adhésion à l'asso</td>
@@ -243,24 +244,26 @@ function goToStep(index: number) {
                 <th></th>
                 <th></th>
                 <th class="px-2">Total</th>
-                <th class="px-2">1285,5 €</th>
+                <th class="px-2">1287,5 €</th>
               </tr>
             </tfoot>
           </table>
         </div>
         <p class="mb-4">
-          À titre indicatif, voici le <strong>planning de la saison 2024-2025</strong> :
+          À titre indicatif, voici le <strong>planning estimé de la saison 2025-2026</strong> :
         </p>
 
         <ul>
-          <li><b>Chorale</b> : mercredi soir</li>
+          <li><b>Chorale adultes</b> : mercredi soir</li>
+          <li><b>Chorale enfants</b> : jeudi soir</li>
+          <li><b>Chant individuel, technique vocale</b> : jeudi soir</li>
           <li><b>Batterie</b> : mercredi</li>
-          <li><b>Guitare acoustique </b> : jeudi soir</li>
-          <li><b>Guitare électrique </b> : samedi après-midi</li>
-          <li><b>Accordéon</b> : mercredi après-midi</li>
+          <li><b>Guitare acoustique </b> : mercredi</li>
+          <li><b>Guitare électrique </b> : mercredi</li>
+          <li><b>Accordéon</b> : lundi soir, mardi soir, mercredi matin, jeudi soirée</li>
           <li><b>Formation musicale</b> : lundi soir et mardi soir</li>
-          <li><b>Piano</b> : lundi soir, mardi soir, mercredi et samedi matin</li>
-          <li><b>Éveil musical</b> : mercredi</li>
+          <li><b>Piano</b> : mardi soir et mercredi</li>
+          <li><b>Éveil musical</b> : mercredi après-midi</li>
           <li><b>Atelier batucada adulte</b> : mercredi</li>
           <li><b>Flûte, saxophone, clarinette</b> : mercredi après-midi</li>
         </ul>
@@ -276,16 +279,27 @@ function goToStep(index: number) {
       </template>
 
       <template v-else-if="stateForm.currentStepIndex < formRecord.steps.length - 1">
-        <multi-data-form
-          v-if="currentStep.array"
-          :step="currentStep"
-          :initial-values="{ data: stateForm.dataForm[currentStep.property!] }"
-          @submit="manageNextStep"
-        />
-        <data-form
-          v-else
-          :step="currentStep"
-          :initial-data="stateForm.dataForm"
+        <generic-form
+          :fields="currentStep.fields!"
+          :initial-values="
+            currentStep.array
+              ? (stateForm.dataForm[currentStep.property!] as FormValues[])
+              : stateForm.dataForm
+          "
+          :labels="{
+            submit: `Passer à l'étape suivante`,
+            addRecord: 'Ajouter une activité',
+            removeRecord: `Supprimer l'activité`
+          }"
+          :buttons="{
+            submit: true,
+            cancel: false,
+            reset: false
+          }"
+          :array="currentStep.array"
+          :property="currentStep.property"
+          :record-title="currentStep.recordTitle"
+          button-position="block"
           @submit="manageNextStep"
         />
       </template>
@@ -296,15 +310,67 @@ function goToStep(index: number) {
 
           <p>
             Avant de nous envoyer votre inscription, merci de vérifier l'ensemble des données
-            renseignées.
+            renseignées. (Vous pouvez parcourir le formulaire à travers les étapes cliquables dans
+            le bandeau supérieur)
           </p>
 
-          <data-detail :data="stateForm.dataForm" />
+          <div class="rounded-xl p-4 border my-8">
+            <div class="mb-4">
+              <h3 class="text-xl mb-2">Fiche d'adhésion</h3>
+
+              <template v-for="field in formRecord.steps[1].fields" :key="field.id">
+                <div v-if="stateForm.dataForm[field.id]">
+                  <label class="font-medium">{{ field.label }}</label>
+                  {{ stateForm.dataForm[field.id] }}
+                </div>
+              </template>
+            </div>
+            <div class="mb-4">
+              <h3 class="text-xl mb-2">
+                Activité{{
+                  (stateForm.dataForm[formRecord.steps[2].property as string] as any[]).length > 1
+                    ? 's'
+                    : ''
+                }}
+              </h3>
+
+              <div class="flex flex-wrap gap-4">
+                <div
+                  class="w-100 lg:w-1/3 border rounded-xl p-4"
+                  v-for="(activity, idx) in stateForm.dataForm[
+                    formRecord.steps[2].property as string
+                  ]"
+                  :key="'activity' + idx"
+                >
+                  <template v-for="field in formRecord.steps[2].fields" :key="field.id">
+                    <div v-if="activity[field.id]">
+                      <label class="font-medium">{{ field.label }}</label>
+                      {{ activity[field.id] }}
+                    </div>
+                  </template>
+                </div>
+              </div>
+            </div>
+            <div class="mb-4">
+              <h3 class="text-xl mb-2">Paiement</h3>
+
+              <template v-for="field in formRecord.steps[3].fields" :key="field.id">
+                <div v-if="stateForm.dataForm[field.id]">
+                  <label class="font-medium">{{ field.label }}</label>
+                  {{ stateForm.dataForm[field.id] }}
+                </div>
+              </template>
+            </div>
+          </div>
 
           <p class="mb-2">
             Si vous pensez avoir finalisé votre inscription, merci de nous indiquer la conduite à
             tenir concernant le droit à l'image,
-            <a href="/2024-hm-reglement-interieur.pdf" target="_blank" class="underline">
+            <a
+              href="https://www.hericmusique.fr/wp-content/uploads/2025/05/Reglement-interieur-2025.pdf"
+              target="_blank"
+              class="underline"
+            >
               lisez le règlement intérieur disponible ici
             </a>
             puis cochez la case vous engageant à le respecter.
@@ -321,7 +387,7 @@ function goToStep(index: number) {
             Votre inscription sera considérée comme
             <span class="font-medium">définitive</span>
             à la réception de votre paiement. Vous pouvez nous l'apporter lors du forum des
-            associations, le 7 septembre 2024.
+            associations, le 6 septembre 2025 ou nous le transmettre en main propre.
           </p>
           <p>
             N'oubliez pas également de nous fournir
@@ -329,14 +395,30 @@ function goToStep(index: number) {
             si vous êtes tranche 1 à 3.
           </p>
 
-          <data-form
+          <generic-form
+            :fields="currentStep.fields!"
+            :initial-values="stateForm.dataForm"
+            :labels="{
+              submit: 'Valider mon inscription'
+            }"
+            :loading="stateForm.submitting"
+            :buttons="{
+              submit: true,
+              cancel: false,
+              reset: false
+            }"
             class="mt-4"
-            :step="currentStep"
-            :initial-data="stateForm.dataForm"
-            submit-button-label="Valider mon inscription"
-            :submit-button-disabled="stateForm.submitting"
+            button-position="block"
             @submit="sendFormRecord"
           />
+
+          <div
+            class="text-error text-danger text-red-500 my-8"
+            v-for="(e, idx) in stateForm.errors"
+            :key="'e_' + idx"
+          >
+            {{ e }}
+          </div>
         </div>
 
         <div v-else class="border p-8 rounded-md font-medium w-auto mx-auto text-center shadow-md">

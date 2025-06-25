@@ -1,698 +1,634 @@
 import { type FormRecord } from '@/declarations'
+import { FIELD_COMPONENT, FIELD_TYPE } from '@locokit/definitions'
+import type { FormFieldState } from '@primevue/forms'
 
 export const formRecord: FormRecord = {
-  label: {
-    'fr-FR': 'Formulaire inscription',
-    'en-EN': 'Registration form'
-  },
-  description: {
-    'fr-FR': '',
-    'en-EN': ''
-  },
+  label: 'Formulaire inscription',
+  description: [''],
   multisteps: true,
   steps: [
     {
-      label: {
-        'fr-FR': 'Accueil',
-        'en-EN': 'Accueil'
-      },
-      description: {
-        'fr-FR': '',
-        'en-EN': ''
-      }
+      label: 'Accueil',
+      description: ['']
     },
     {
-      label: {
-        'fr-FR': 'Adhésion',
-        'en-EN': 'Adhésion'
-      },
-      description: {
-        'fr-FR':
-          "Merci de renseigner les informations de l'adhérent ou de son-sa représentant-e légal-e",
-        'en-EN':
-          "Merci de renseigner les informations de l'adhérent ou de son-sa représentant-e légal-e"
-      },
+      label: 'Adhésion',
+      description: [
+        "Merci de renseigner les informations de l'adhérent ou de son-sa représentant-e légal-e"
+      ],
       property: 'membership',
       fields: [
         {
-          label: {
-            'fr-FR': 'NOM',
-            'en-EN': 'Last name'
-          },
-          name: 'membership_lastname',
-          input: 'oneline-text',
-          rules: {
-            required: true
-          }
-        },
-        {
-          label: {
-            'fr-FR': 'Prénom',
-            'en-EN': 'First name'
-          },
-          name: 'membership_firstname',
-          input: 'oneline-text',
-          rules: {
-            required: true
-          }
-        },
-        {
-          label: {
-            'fr-FR': 'Mail n°1 de contact',
-            'en-EN': 'Mail n°1 de contact'
-          },
-          name: 'membership_email_1',
-          input: 'oneline-text',
-          attributes: {
-            type: 'email'
-          },
-          rules: {
-            required: true
-          }
-        },
-        {
-          label: {
-            'fr-FR': 'Mail n°2 de contact',
-            'en-EN': 'Mail n°2 de contact'
-          },
-          name: 'membership_email_2',
-          input: 'oneline-text',
-          attributes: {
-            type: 'email'
-          }
-        },
-        {
-          label: {
-            'fr-FR': 'Tél n°1 de contact',
-            'en-EN': 'Tél n°1 de contact'
-          },
-          name: 'membership_tel_1',
-          input: 'oneline-text',
-          attributes: {
-            type: 'tel'
-          },
-          rules: {
-            required: true
-          }
-        },
-        {
-          label: {
-            'fr-FR': 'Tél n°2 de contact',
-            'en-EN': 'Tél n°2 de contact'
-          },
-          name: 'membership_tel_2',
-          input: 'oneline-text',
-          attributes: {
-            type: 'tel'
-          }
-        },
-        {
-          label: {
-            'fr-FR': 'Adresse',
-            'en-EN': 'Adresse'
-          },
-          name: 'membership_address',
-          input: 'oneline-text'
-        },
-        {
-          label: {
-            'fr-FR': 'Code postal',
-            'en-EN': 'Code postal'
-          },
-          name: 'membership_zipcode',
-          input: 'oneline-text',
-          attributes: {
-            minlength: 5,
-            maxlength: 5,
-            inputmode: 'numeric'
-          },
-          rules: {
-            required: true
-          }
-        },
-        {
-          label: {
-            'fr-FR': 'Ville',
-            'en-EN': 'Ville'
-          },
-          name: 'membership_city',
-          input: 'oneline-text',
-          rules: {
-            required: true
-          }
-        },
-        {
-          label: {
-            'fr-FR': 'Quotient familial',
-            'en-EN': 'Quotient familial'
-          },
-          description: {
-            'fr-FR':
-              "Si tranche 1 à 3, merci de nous fournir l'attestation de la CAF correspondante lors du paiement Hello Asso, par mail ou en main propre. Vous pouvez la trouver sur le site de la CAF. Pour les choristes ou hors cursus, choisissez la tranche 4 si vous ne la connaissez pas.",
-            'en-EN':
-              "Si tranche 1 à 3, merci de nous fournir l'attestation de la CAF correspondante"
-          },
-          name: 'membership_family_quotient',
-          input: 'single-data',
-          display: 'radio',
-          values: [
-            {
-              label: {
-                'fr-FR': 'Tranche 1 (0 - 550 €)',
-                'en-EN': 'Tranche 1 (0 - 550 €)'
-              },
-              value: 'tranche1'
-            },
-            {
-              label: {
-                'fr-FR': 'Tranche 2 (551 - 800 €)',
-                'en-EN': 'Tranche 2 (551 - 800 €)'
-              },
-              value: 'tranche2'
-            },
-            {
-              label: {
-                'fr-FR': 'Tranche 3 (801 - 1050 €)',
-                'en-EN': 'Tranche 3 (801 - 1050 €)'
-              },
-              value: 'tranche3'
-            },
-            {
-              label: {
-                'fr-FR': 'Tranche 4 (> 1051 €) ou choriste/hors cursus',
-                'en-EN': 'Tranche 4 (> 1051 €) ou choriste/hors cursus'
-              },
-              value: 'tranche4',
-              default: true
+          label: 'NOM',
+          id: 'membership_lastname',
+          component: FIELD_COMPONENT.INPUT_TEXT,
+          type: FIELD_TYPE.STRING,
+          settings: {
+            default: {
+              validation: {
+                required: true
+              }
             }
+          }
+        },
+        {
+          label: 'Prénom',
+          id: 'membership_firstname',
+          component: FIELD_COMPONENT.INPUT_TEXT,
+          type: FIELD_TYPE.STRING,
+          settings: {
+            default: {
+              validation: {
+                required: true
+              }
+            }
+          }
+        },
+        {
+          label: 'Mail n°1 de contact',
+          id: 'membership_email_1',
+          component: FIELD_COMPONENT.INPUT_EMAIL,
+          settings: {
+            default: {
+              validation: {
+                required: true
+              }
+            }
+          }
+        },
+        {
+          label: 'Mail n°2 de contact',
+          id: 'membership_email_2',
+          component: FIELD_COMPONENT.INPUT_EMAIL,
+          type: FIELD_TYPE.STRING
+        },
+        {
+          label: 'Tél n°1 de contact',
+          id: 'membership_tel_1',
+          component: FIELD_COMPONENT.INPUT_TEXT,
+          type: FIELD_TYPE.STRING,
+          attrs: function ($field: any) {
+            return {
+              type: 'tel',
+              onChange: $field.onChange
+            }
+          },
+          settings: {
+            default: {
+              validation: {
+                required: true
+              }
+            }
+          }
+        },
+        {
+          label: 'Tél n°2 de contact',
+          id: 'membership_tel_2',
+          component: FIELD_COMPONENT.INPUT_TEXT,
+          type: FIELD_TYPE.STRING,
+          attrs: function ($field: any) {
+            return {
+              type: 'tel',
+              onChange: $field.onChange
+            }
+          }
+        },
+        {
+          label: 'Adresse',
+          id: 'membership_address',
+          component: FIELD_COMPONENT.INPUT_TEXT,
+          type: FIELD_TYPE.STRING
+        },
+        {
+          label: 'Code postal',
+          id: 'membership_zipcode',
+          component: FIELD_COMPONENT.INPUT_TEXT,
+          type: FIELD_TYPE.STRING,
+          attrs: function ($field: any) {
+            return {
+              minlength: 5,
+              maxlength: 5,
+              inputmode: 'numeric',
+              onChange: $field.onChange
+            }
+          },
+          settings: {
+            default: {
+              validation: {
+                required: true
+              }
+            }
+          }
+        },
+        {
+          label: 'Ville',
+          id: 'membership_city',
+          component: FIELD_COMPONENT.INPUT_TEXT,
+          type: FIELD_TYPE.STRING,
+          settings: {
+            default: {
+              validation: {
+                required: true
+              }
+            }
+          }
+        },
+        {
+          label: 'Montant du quotient familial',
+          description: ['Montant fourni par la CAF pour le calcul de la tranche'],
+          id: 'membership_family_quotient_amount',
+          component: FIELD_COMPONENT.INPUT_TEXT,
+          type: FIELD_TYPE.NUMBER,
+          attrs: function ($field: any) {
+            return {
+              type: 'number',
+              onChange: $field.onChange
+            }
+          }
+        },
+        {
+          label: 'Tranche Héric Musique liée au quotient familial',
+          description: [
+            "Si tranche 1 à 3, merci de nous fournir l'attestation de la CAF correspondante lors du paiement Hello Asso, par mail ou en main propre. Vous pouvez la trouver sur le site de la CAF. Pour les choristes ou hors cursus, choisissez la tranche 4 si vous ne la connaissez pas."
           ],
-          rules: {
-            required: true
+          id: 'membership_family_quotient',
+          type: FIELD_TYPE.STRING,
+          component: FIELD_COMPONENT.SINGLE_SELECT,
+          defaultValue() {
+            return 'tranche4'
+          },
+          source: {
+            options: [
+              {
+                label: 'Tranche 1 (0 - 550 €)',
+                value: 'tranche1'
+              },
+              {
+                label: 'Tranche 2 (551 - 800 €)',
+                value: 'tranche2'
+              },
+              {
+                label: 'Tranche 3 (801 - 1050 €)',
+                value: 'tranche3'
+              },
+              {
+                label: 'Tranche 4 (> 1051 €) ou choriste/hors cursus',
+                value: 'tranche4'
+              }
+            ],
+            label: 'label',
+            value: 'value'
+          },
+          settings: {
+            default: {
+              validation: {
+                required: true
+              }
+            }
           }
         }
       ]
     },
     {
-      label: {
-        'fr-FR': 'Activité(s)',
-        'en-EN': 'Activity•ies'
-      },
-      description: {
-        'fr-FR': 'Merci de renseigner chaque élève et son activité associée.',
-        'en-EN': 'Merci de renseigner chaque élève et son activité associé.'
-      },
+      label: 'Activité(s)',
+      description: ['Merci de renseigner chaque élève et son activité associée.'],
       property: 'activity',
       array: true,
-      maxItems: 3,
+      maxRecords: 3,
+      recordTitle: (
+        record: {
+          [key: string]: FormFieldState
+        },
+        idx: number
+      ) =>
+        `Élève / cours ${idx + 1} : ${record['form_' + idx + '_activity_lastname']?.value || ''} ${record['form_' + idx + '_activity_firstname']?.value || ''}`,
       fields: [
         {
-          label: {
-            'fr-FR': 'NOM',
-            'en-EN': 'Last name'
-          },
-          name: 'activity_lastname',
-          input: 'oneline-text',
-          rules: {
-            required: true
-          }
-        },
-        {
-          label: {
-            'fr-FR': 'Prénom',
-            'en-EN': 'First name'
-          },
-          name: 'activity_firstname',
-          input: 'oneline-text',
-          rules: {
-            required: true
-          }
-        },
-        {
-          label: {
-            'fr-FR': 'Date de naissance',
-            'en-EN': 'Birthday'
-          },
-          name: 'activity_birthday',
-          input: 'date',
-          rules: {
-            required: true
-          }
-        },
-        {
-          label: {
-            'fr-FR': 'Cours',
-            'en-EN': 'Cours'
-          },
-          name: 'activity_course',
-          input: 'single-data',
-          rules: {
-            required: true
-          },
-          values: [
-            {
-              label: {
-                'fr-FR': 'Éveil musical',
-                'en-EN': 'Éveil musical'
-              },
-              value: '2025_eveil'
-            },
-            {
-              label: {
-                'fr-FR': 'Initiation multi-instrumentale',
-                'en-EN': 'Initiation multi-instrumentale'
-              },
-              value: '2025_multi'
-            },
-            {
-              label: {
-                'fr-FR': 'Instrument Cycle 1 (< 4 ans) + projet collectif + Formation Musicale',
-                'en-EN': 'Instrument Cycle 1 + projet collectif + Formation Musicale'
-              },
-              value: '2025_instru_cycle1'
-            },
-            {
-              label: {
-                'fr-FR': 'Instrument Cycle 2 (> 4 ans) + Projet collectif',
-                'en-EN': 'Instrument Cycle 2 (> 4 ans) + Projet collectif'
-              },
-              value: '2025_instru_cycle2'
-            },
-
-            {
-              label: {
-                'fr-FR': 'Hors cursus Instrument (30mn hebdo)',
-                'en-EN': 'Hors cursus Instrument (30mn hebdo)'
-              },
-              value: '2025_horscursus_instru'
-            },
-            {
-              label: {
-                'fr-FR': 'Hors cursus Instrument (30mn bi hebdo)',
-                'en-EN': 'Hors cursus Instrument (30mn bi hebdo)'
-              },
-              value: '2025_horscursus_instru_30mn_15J'
-            },
-
-            {
-              label: {
-                'fr-FR': 'Hors cursus Chant individuel',
-                'en-EN': 'Hors cursus Chant individuel'
-              },
-              value: '2025_horscursus_chant_individuel'
-            },
-            {
-              label: {
-                'fr-FR': 'Hors Cursus Chant individuel 30mn tous les 15 J',
-                'en-EN': 'Hors Cursus Chant individuel 30mn tous les 15 J'
-              },
-              value: '2025_horscursus_chant_individuel_30mn_15J'
-            },
-            {
-              label: {
-                'fr-FR': 'Hors Cursus Chorale enfants',
-                'en-EN': 'Hors Cursus Chorale enfants'
-              },
-              value: '2025_horscursus_chorale_enfants'
-            },
-
-            {
-              label: {
-                'fr-FR': 'Hors cursus Batucada',
-                'en-EN': 'Hors cursus Batucada'
-              },
-              value: '2025_horscursus_batuc'
-            },
-            {
-              label: {
-                'fr-FR': 'Hors Cursus Percussion africaines enfants, ados',
-                'en-EN': 'Hors Cursus Percussion africaines enfants, ados'
-              },
-              value: '2025_horscursus_percu_enfants'
-            },
-            {
-              label: {
-                'fr-FR': 'Hors cursus Percussions',
-                'en-EN': 'Hors cursus Percussions'
-              },
-              value: '2025_horscursus_percu'
-            },
-            {
-              label: {
-                'fr-FR': 'Hors cursus Atelier Jazz / Rock',
-                'en-EN': 'Hors cursus Atelier Jazz / Rock'
-              },
-              value: '2025_horscursus_atelier'
-            },
-            {
-              label: {
-                'fr-FR': 'Hors cursus Atelier vocal',
-                'en-EN': 'Hors cursus Atelier vocal'
-              },
-              value: '2025_horscursus_atelier_vocal'
-            },
-            {
-              label: {
-                'fr-FR': 'Hors cursus Boeuf sur le toit',
-                'en-EN': 'Hors cursus Boeuf sur le toit'
-              },
-              value: '2025_horscursus_boeuf'
-            },
-            {
-              label: {
-                'fr-FR': 'Hors cursus Ensemble vocal',
-                'en-EN': 'Hors cursus Ensemble vocal'
-              },
-              value: '2025_horscursus_chorale'
+          label: 'NOM',
+          id: 'activity_lastname',
+          component: FIELD_COMPONENT.INPUT_TEXT,
+          type: FIELD_TYPE.STRING,
+          settings: {
+            default: {
+              validation: {
+                required: true
+              }
             }
-          ]
+          }
         },
         {
-          label: {
-            'fr-FR': 'Formation musicale',
-            'en-EN': 'Formation musicale'
-          },
-          description: {
-            'fr-FR': "Si applicable, choisir l'année de la formation musicale",
-            'en-EN': "Si applicable, choisir l'année de la formation musicale"
-          },
-          name: 'activity_teach_year',
-          input: 'single-data',
-          values: [
-            {
-              label: {
-                'fr-FR': '1ère année',
-                'en-EN': '1ère année'
-              },
-              value: 'first_year'
-            },
-            {
-              label: {
-                'fr-FR': '2ème année',
-                'en-EN': '2ème année'
-              },
-              value: 'second'
-            },
-            {
-              label: {
-                'fr-FR': '3ème année',
-                'en-EN': '3ème année'
-              },
-              value: 'third'
-            },
-            {
-              label: {
-                'fr-FR': '4ème année',
-                'en-EN': '4ème année'
-              },
-              value: 'fourth'
+          label: 'Prénom',
+          id: 'activity_firstname',
+          component: FIELD_COMPONENT.INPUT_TEXT,
+          type: FIELD_TYPE.STRING,
+          settings: {
+            default: {
+              validation: {
+                required: true
+              }
             }
+          }
+        },
+        {
+          label: 'Date de naissance',
+          id: 'activity_birthday',
+          component: FIELD_COMPONENT.INPUT_DATE,
+          type: FIELD_TYPE.DATE,
+          settings: {
+            default: {
+              validation: {
+                required: true
+              }
+            }
+          }
+        },
+        {
+          id: 'activity_course',
+          label: 'Cours',
+          type: FIELD_TYPE.STRING,
+          component: FIELD_COMPONENT.SINGLE_SELECT,
+          settings: {
+            default: {
+              validation: {
+                required: true
+              }
+            }
+          },
+          source: {
+            options: [
+              {
+                label: 'Éveil musical',
+                value: '2025_eveil'
+              },
+              {
+                label: 'Initiation multi-instrumentale',
+                value: '2025_multi'
+              },
+              {
+                label: 'Instrument Cycle 1 (≤ 4 ans) + projet collectif + Formation Musicale',
+                value: '2025_instru_cycle1'
+              },
+              {
+                label: 'Instrument Cycle 2 (> 4 ans) + Projet collectif',
+                value: '2025_instru_cycle2'
+              },
+
+              {
+                label: 'Hors cursus Instrument 30mn hebdo',
+                value: '2025_horscursus_instru'
+              },
+              {
+                label: 'Hors cursus Instrument 30mn tous les 15 J',
+                value: '2025_horscursus_instru_30mn_15J'
+              },
+
+              {
+                label: 'Hors cursus Chant individuel 30mn hebdo',
+                value: '2025_horscursus_chant_individuel'
+              },
+              {
+                label: 'Hors Cursus Chant individuel 30mn tous les 15 J',
+                value: '2025_horscursus_chant_individuel_30mn_15J'
+              },
+              {
+                label: 'Hors Cursus Chorale enfants',
+                value: '2025_horscursus_chorale_enfants'
+              },
+
+              {
+                label: 'Hors cursus Batucada',
+                value: '2025_horscursus_batuc'
+              },
+              {
+                label: 'Hors Cursus Percussion africaines enfants, ados',
+                value: '2025_horscursus_percu_enfants'
+              },
+              {
+                label: 'Hors cursus Percussions',
+                value: '2025_horscursus_percu'
+              },
+              {
+                label: 'Hors cursus Atelier Jazz / Rock',
+                value: '2025_horscursus_atelier'
+              },
+              {
+                label: 'Hors cursus Atelier vocal',
+                value: '2025_horscursus_atelier_vocal'
+              },
+              {
+                label: 'Hors cursus Boeuf sur le toit',
+                value: '2025_horscursus_boeuf'
+              },
+              {
+                label: 'Hors cursus Ensemble vocal',
+                value: '2025_horscursus_chorale'
+              }
+            ],
+            label: 'label',
+            value: 'value'
+          }
+        },
+        {
+          id: 'activity_teach_year',
+          label: 'Formation musicale',
+          description: ["Si applicable, choisir l'année de la formation musicale"],
+          type: FIELD_TYPE.STRING,
+          component: FIELD_COMPONENT.SINGLE_SELECT,
+          source: {
+            options: [
+              {
+                label: '1ère année',
+                value: 'first_year'
+              },
+              {
+                label: '2ème année',
+                value: 'second'
+              },
+              {
+                label: '3ème année',
+                value: 'third'
+              },
+              {
+                label: '4ème année',
+                value: 'fourth'
+              }
+            ],
+            label: 'label',
+            value: 'value'
+          },
+          settings: {
+            default: {
+              display: {
+                visible: false
+              },
+              validation: {
+                required: false
+              }
+            },
+            rules: [
+              {
+                conditions: [
+                  {
+                    fieldId: 'activity_course',
+                    operator: '$eq',
+                    value: '2025_instru_cycle1'
+                  }
+                ],
+                impact: {
+                  display: {
+                    visible: true
+                  },
+                  validation: {
+                    required: true
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          label: 'Achat du livret de formation musicale',
+          description: [
+            "Vous pouvez demander le livret de la formation musicale, nous ferons une commande groupée. (~26€ selon l'année)"
           ],
-          rules: {
-            required: true
+          id: 'activity_want_music_book',
+          type: FIELD_TYPE.BOOLEAN,
+          component: FIELD_COMPONENT.TOGGLE_SWITCH,
+          settings: {
+            default: {
+              display: {
+                visible: false
+              },
+              validation: {
+                required: false
+              }
+            },
+            rules: [
+              {
+                conditions: [
+                  {
+                    fieldId: 'activity_course',
+                    operator: '$eq',
+                    value: '2025_instru_cycle1'
+                  }
+                ],
+                impact: {
+                  display: {
+                    visible: true
+                  }
+                }
+              }
+            ]
           }
-          // conditionalDisplay: {
-          //   fieldId: 'activity_course',
-          //   operator: '$eq',
-          //   value: '2025_instru_cycle1'
-          // }
         },
         {
-          label: {
-            'fr-FR': 'Achat du livret de formation musicale',
-            'en-EN': 'Achat du livret de formation musicale'
+          id: 'activity_instrument',
+          label: 'Instrument',
+          description: ["Si applicable, choisir l'instrument"],
+          type: FIELD_TYPE.STRING,
+          component: FIELD_COMPONENT.SINGLE_SELECT,
+          source: {
+            options: [
+              {
+                label: 'Accordéon',
+                value: 'accordeon'
+              },
+              {
+                label: 'Basse',
+                value: 'basse'
+              },
+              {
+                label: 'Batterie',
+                value: 'batterie'
+              },
+              {
+                label: 'Clarinette',
+                value: 'clarinette'
+              },
+              {
+                label: 'Contrebasse',
+                value: 'contrebasse'
+              },
+              {
+                label: 'Flûte',
+                value: 'flute'
+              },
+              {
+                label: 'Guitare classique',
+                value: 'guitare_classique'
+              },
+              {
+                label: 'Guitare électrique',
+                value: 'guitare_electrique'
+              },
+              {
+                label: 'Piano',
+                value: 'piano'
+              },
+              {
+                label: 'Saxophone',
+                value: 'saxophone'
+              }
+            ],
+            label: 'label',
+            value: 'value'
           },
-          description: {
-            'fr-FR':
-              'Vous pouvez demander le livret de la formation musicale, nous ferons une commande groupée.',
-            'en-EN':
-              'Vous pouvez demander le livret de la formation musicale, nous ferons une commande groupée.'
-          },
-          name: 'activity_want_music_book',
-          input: 'boolean',
-          display: 'toggle',
-          conditionalDisplay: {
-            fieldId: 'activity_course',
-            operator: '$eq',
-            value: '2025_instru_cycle1'
+          settings: {
+            default: {
+              display: {
+                visible: false
+              },
+              validation: {
+                required: false
+              }
+            },
+            rules: [
+              {
+                conditions: [
+                  {
+                    fieldId: 'activity_course',
+                    operator: '$in',
+                    value: ['2025_instru_cycle1', '2025_instru_cycle2']
+                  }
+                ],
+                impact: {
+                  display: {
+                    visible: true
+                  },
+                  validation: {
+                    required: true
+                  }
+                }
+              }
+            ]
           }
         },
         {
-          label: {
-            'fr-FR': 'Instrument',
-            'en-EN': 'Instrument'
-          },
-          description: {
-            'fr-FR': "Si applicable, choisir l'instrument",
-            'en-EN': "Si applicable, choisir l'instrument"
-          },
-          name: 'activity_instrument',
-          input: 'single-data',
-          values: [
-            {
-              label: {
-                'fr-FR': 'Accordéon',
-                'en-EN': 'Accordéon'
-              },
-              value: 'accordeon'
-            },
-            {
-              label: {
-                'fr-FR': 'Basse',
-                'en-EN': 'Basse'
-              },
-              value: 'basse'
-            },
-            {
-              label: {
-                'fr-FR': 'Batterie',
-                'en-EN': 'Batterie'
-              },
-              value: 'batterie'
-            },
-            {
-              label: {
-                'fr-FR': 'Clarinette',
-                'en-EN': 'Clarinette'
-              },
-              value: 'clarinette'
-            },
-            {
-              label: {
-                'fr-FR': 'Contrebasse',
-                'en-EN': 'Contrebasse'
-              },
-              value: 'contrebasse'
-            },
-            {
-              label: {
-                'fr-FR': 'Flûte',
-                'en-EN': 'Flûte'
-              },
-              value: 'flute'
-            },
-            {
-              label: {
-                'fr-FR': 'Guitare classique',
-                'en-EN': 'Guitare classique'
-              },
-              value: 'guitare_classique'
-            },
-            {
-              label: {
-                'fr-FR': 'Guitare électrique',
-                'en-EN': 'Guitare électrique'
-              },
-              value: 'guitare_electrique'
-            },
-            {
-              label: {
-                'fr-FR': 'Piano',
-                'en-EN': 'Piano'
-              },
-              value: 'piano'
-            },
-            {
-              label: {
-                'fr-FR': 'Saxophone',
-                'en-EN': 'Saxophone'
-              },
-              value: 'saxophone'
-            }
-          ],
-          rules: {
-            required: true
-          }
-          // conditionalDisplay: {
-          //   fieldId: 'activity_course',
-          //   operator: '$in',
-          //   value: ['2025_instru_cycle1', '2025_instru_cycle2']
-          // }
-        },
-        {
-          label: {
-            'fr-FR':
-              'Besoins particuliers (PAI, accompagnement, horaires privilégiés, fréquence...)',
-            'en-EN':
-              'Besoins particuliers (PAI, accompagnement, horaires privilégiés, fréquence...)'
-          },
-          name: 'activity_information',
-          input: 'multiline-text'
+          label: 'Besoins particuliers (PAI, accompagnement, horaires privilégiés, fréquence...)',
+          id: 'activity_information',
+          type: FIELD_TYPE.STRING,
+          component: FIELD_COMPONENT.TEXTAREA
         }
       ]
     },
     {
-      label: {
-        'fr-FR': 'Paiement',
-        'en-EN': 'Paiement'
-      },
+      label: 'Paiement',
       summary: true,
-      description: {
-        'fr-FR': 'Merci de renseigner vos modalités de paiement',
-        'en-EN': 'Merci de renseigner vos modalités de paiement'
-      },
+      description: ['Merci de renseigner vos modalités de paiement'],
       fields: [
         {
-          label: {
-            'fr-FR': 'Information sur paiements',
-            'en-EN': 'Information sur paiements'
-          },
-          description: {
-            'fr-FR': '',
-            'en-EN': ''
-          },
-          name: 'payment_information',
-          input: 'oneline-text'
+          label: 'Information sur paiements',
+          description: [''],
+          id: 'payment_information',
+          type: FIELD_TYPE.STRING,
+          component: FIELD_COMPONENT.TEXTAREA
         },
         {
-          label: {
-            'fr-FR': 'Moyen de paiement',
-            'en-EN': 'Moyen de paiement'
+          label: 'Moyen de paiement',
+          description: [''],
+          id: 'payment_method',
+          type: FIELD_TYPE.STRING,
+          component: FIELD_COMPONENT.SINGLE_SELECT,
+          source: {
+            options: [
+              {
+                label: 'Chèque(s)',
+                value: 'cheque'
+              },
+              {
+                label: 'Espèces',
+                value: 'espece'
+              },
+              {
+                label: 'Hello Asso',
+                value: 'hello_asso'
+              },
+              {
+                label: 'Autre',
+                value: 'autre'
+              }
+            ],
+            label: 'label',
+            value: 'value'
           },
-          description: {
-            'fr-FR': '',
-            'en-EN': ''
-          },
-          name: 'payment_method',
-          input: 'single-data',
-          display: 'radio',
-          values: [
-            {
-              label: {
-                'fr-FR': 'Chèque(s)',
-                'en-EN': 'Chèque(s)'
-              },
-              value: 'cheque',
-              default: true
-            },
-            {
-              label: {
-                'fr-FR': 'Espèces',
-                'en-EN': 'Espèces'
-              },
-              value: 'espece',
-              default: true
-            },
-            {
-              label: {
-                'fr-FR': 'Hello Asso',
-                'en-EN': 'Hello Asso'
-              },
-              value: 'hello_asso'
-            },
-            {
-              label: {
-                'fr-FR': 'Autre',
-                'en-EN': 'Autre'
-              },
-              value: 'autre'
+          settings: {
+            default: {
+              validation: {
+                required: true
+              }
             }
-          ],
-          rules: {
-            required: true
           }
         }
       ]
     },
     {
-      label: {
-        'fr-FR': 'Récap',
-        'en-EN': 'Récap'
-      },
+      label: 'Récap',
       summary: true,
-      description: {
-        'fr-FR': '',
-        'en-EN': ''
-      },
+      description: [''],
       fields: [
         {
-          label: {
-            'fr-FR': 'Droits de diffusion',
-            'en-EN': 'Droits de diffusion'
-          },
-          description: {
-            'fr-FR':
-              "Vous autorisez l'association Héric Musique à afficher ou publier, à des fins de promotion ou de communication, une photographie ou une vidéo sur laquelle figure un des élèves mentionnés dans ce formulaire.",
-            'en-EN':
-              "Vous autorisez l'association Héric Musique à afficher ou publier, à des fins de promotion ou de communication, une photographie ou une vidéo sur laquelle figure un des élèves mentionnés dans ce formulaire."
-          },
-          name: 'broadcast_right',
-          input: 'single-data',
-          display: 'radio',
-          values: [
-            {
-              label: {
-                'fr-FR': "J'autorise",
-                'en-EN': "J'autorise"
-              },
-              value: 'yes',
-              default: true
-            },
-            {
-              label: {
-                'fr-FR': "Je n'autorise pas",
-                'en-EN': "Je n'autorise pas"
-              },
-              value: 'no'
-            }
+          label: 'Droits de diffusion',
+          description: [
+            "Vous autorisez l'association Héric Musique à afficher ou publier, à des fins de promotion ou de communication, une photographie ou une vidéo sur laquelle figure un des élèves mentionnés dans ce formulaire."
           ],
-          rules: {
-            required: true
+          id: 'broadcast_right',
+          type: FIELD_TYPE.STRING,
+          component: FIELD_COMPONENT.INPUT_RADIO,
+          class: 'flex flex-col gap-2 mt-2',
+          source: {
+            options: [
+              {
+                label: "J'autorise",
+                value: 'yes',
+                default: true
+              },
+              {
+                label: "Je n'autorise pas",
+                value: 'no'
+              }
+            ],
+            label: 'label',
+            value: 'value'
+          },
+          settings: {
+            default: {
+              validation: {
+                required: true
+              }
+            }
           }
         },
         {
-          label: {
-            'fr-FR': 'Règlement intérieur',
-            'en-EN': 'Règlement intérieur'
-          },
-          description: {
-            'fr-FR':
-              "Vous vous engagez à respecter le règlement intérieur de l'association Héric Musique",
-            'en-EN':
-              "Vous vous engagez à respecter le règlement intérieur de l'association Héric Musique"
-          },
-          name: 'rules_respect',
-          input: 'single-data',
-          display: 'radio',
-          values: [
-            {
-              label: {
-                'fr-FR': "Je m'y engage",
-                'en-EN': "Je m'y engage"
-              },
-              value: 'yes',
-              default: true
-            },
-            {
-              label: {
-                'fr-FR': 'Je ne souhaite pas continuer',
-                'en-EN': 'Je ne souhaite pas continuer'
-              },
-              value: 'no'
-            }
+          label: 'Règlement intérieur',
+          description: [
+            "Vous vous engagez à respecter le règlement intérieur de l'association Héric Musique"
           ],
-          rules: {
-            required: true,
-            match: 'yes'
+          id: 'rules_respect',
+          type: FIELD_TYPE.STRING,
+          component: FIELD_COMPONENT.INPUT_RADIO,
+          class: 'flex flex-col gap-2 mt-2',
+          source: {
+            options: [
+              {
+                label: "Je m'y engage",
+                value: 'yes',
+                default: true
+              },
+              {
+                label: 'Je ne souhaite pas continuer',
+                value: 'no'
+              }
+            ],
+            label: 'label',
+            value: 'value'
+          },
+          settings: {
+            default: {
+              validation: {
+                required: true,
+                match: 'yes'
+              }
+            }
           }
         }
       ]
