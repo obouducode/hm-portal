@@ -376,10 +376,12 @@ function goToStep(index: number) {
             puis cochez la case vous engageant à le respecter.
           </p>
           <p>
-            Un email contenant votre demande d'inscription avec l'ensemble des renseignements
-            précédents sera envoyé à Héric Musique, copie à l'adresse mail que vous aurez renseigné
-            dans la page de coordonnées.
+            Quand vous allez procéder à la validation de votre inscription, vous serez enregistré
+            dans nos élèves. (pour l'instant, vous ne recevrez pas d'email récapitulatif) Nous
+            reprendrons contact avec vous pour vous confirmer que votre inscription a bien été
+            reçue, et s'il manque des éléments à votre inscription.
           </p>
+          <p>N'hésitez pas à prendre contact avec nous si besoin par mail ou téléphone.</p>
           <p class="text-center text-lg font-bold my-4">
             ATTENTION !!! MERCI DE LIRE ATTENTIVEMENT !!!
           </p>
