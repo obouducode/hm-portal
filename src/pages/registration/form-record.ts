@@ -552,7 +552,7 @@ export const formRecord: FormRecord = {
         },
         {
           label: 'Atelier musical (choix 1)',
-          description: ['Vous pouvez choisir 3 projets par ordre de priorité'],
+          description: ['Vous pouvez choisir 3 projets par ordre de priorité.','Retrouvez les ateliers sur https://www.hericmusique.fr/index.php/heures-projet/ .'],
           id: 'activity_workshop_choice_1',
           type: FIELD_TYPE.STRING,
           component: FIELD_COMPONENT.SINGLE_SELECT,
