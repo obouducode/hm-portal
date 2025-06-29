@@ -442,7 +442,7 @@ export const formRecord: FormRecord = {
                   {
                     fieldId: 'activity_course',
                     operator: '$in',
-                    value: ['2025_instru_cycle1', '2025_instru_cycle2']
+                    value: ['2025_instru_cycle1', '2025_instru_cycle2', '2025_horscursus_instru', '2025_horscursus_instru_30mn_15J']
                   }
                 ],
                 impact: {
