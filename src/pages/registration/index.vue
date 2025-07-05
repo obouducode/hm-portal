@@ -75,6 +75,7 @@ async function sendFormRecord(values: Record<string, any>) {
     if (json.status === 'OK') {
       stateForm.value.success = true
       localStorage.setItem('hm-data-form', JSON.stringify(defaultDataForm))
+      stateForm.value.dataForm = JSON.parse(localStorage.getItem('hm-data-form'))
     } else {
       stateForm.value.success = false
       stateForm.value.errors.push(
