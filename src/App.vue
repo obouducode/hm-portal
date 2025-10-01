@@ -3,6 +3,7 @@ import { RouterLink, RouterView, useRoute } from 'vue-router'
 import { useStoreAuth } from '@/stores/auth'
 
 import PrimeButton from 'primevue/button'
+import PrimeToast from 'primevue/toast'
 import { computed } from 'vue'
 
 const { authState } = useStoreAuth()
@@ -24,6 +25,7 @@ const mainStyle = computed(() => {
 </script>
 
 <template>
+  <prime-toast position="top-right" />
   <header
     class="bg-white dark:bg-slate-900 p-1 lg:p-2 shadow-md sticky top-0 w-full h-16 z-10"
     v-if="route.meta.displayHeader"

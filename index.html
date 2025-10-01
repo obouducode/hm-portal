@@ -5,9 +5,75 @@
     <link rel="icon" href="/assets/logo_hm.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Héric Musique</title>
+    <style>
+      /*
+      1. Use a consistent sensible line-height in all browsers.
+      2. Prevent adjustments of font size after orientation changes in iOS.
+      3. Use a more readable tab size.
+      4. Use the user's configured `sans` font-family by default.
+      5. Use the user's configured `sans` font-feature-settings by default.
+      6. Use the user's configured `sans` font-variation-settings by default.
+      7. Disable tap highlights on iOS
+      */
+
+      html,
+      :host {
+        line-height: 1.5; /* 1 */
+        -webkit-text-size-adjust: 100%; /* 2 */
+        -moz-tab-size: 4; /* 3 */
+        -o-tab-size: 4;
+        tab-size: 4; /* 3 */
+        font-family:
+          ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+          'Segoe UI Symbol', 'Noto Color Emoji'; /* 4 */
+        font-feature-settings: normal; /* 5 */
+        font-variation-settings: normal; /* 6 */
+        -webkit-tap-highlight-color: transparent; /* 7 */
+      }
+
+      /*
+      1. Remove the margin in all browsers.
+      2. Inherit line-height from `html` so users can set them as a class directly on the `html` element.
+      */
+
+      body {
+        margin: 0; /* 1 */
+        line-height: inherit; /* 2 */
+      }
+
+      .flex {
+        display: flex;
+      }
+      .flex-col {
+        flex-direction: column;
+      }
+      .h-full {
+        height: 100%;
+      }
+      .text-center {
+        text-align: center;
+      }
+      .mt-16 {
+        margin-top: 4rem;
+      }
+      .mx-auto {
+        margin-left: auto;
+        margin-right: auto;
+      }
+      .text-2xl {
+        font-size: 1.5rem;
+        line-height: 2rem;
+      }
+    </style>
   </head>
   <body class="bg-slate-100 dark:bg-slate-700 dark:text-white h-full">
-    <div id="app" class="flex flex-col h-full">Loading the app...</div>
+    <div id="app" class="flex flex-col h-full">
+      <div class="h-full text-center mt-16 mx-auto">
+        <img src="/assets/logo_hm.svg" style="height: 300px" />
+        <br />
+        <span class="text-2xl">Loading the app...</span>
+      </div>
+    </div>
     <script type="module" src="/src/main.ts"></script>
     <script>
       const LCK_SETTINGS = {

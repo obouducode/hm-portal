@@ -10,7 +10,7 @@ const loading = ref(false)
 const memberships = ref({})
 const search = ref('')
 const pagination = ref({
-  limit: 200,
+  limit: 50,
   skip: 0
 })
 
