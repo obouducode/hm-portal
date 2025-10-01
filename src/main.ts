@@ -11,6 +11,7 @@ import ToastService from 'primevue/toastservice'
 import App from './App.vue'
 import { router } from './router'
 import { useStoreAuth } from './stores/auth'
+import { useStoreGlossary } from './stores/glossaries'
 
 /**
  * Boot the VueJS application
@@ -40,6 +41,9 @@ async function boot() {
    */
   const { reAuthenticate } = useStoreAuth()
   await reAuthenticate()
+
+  const { fetch: fetchGlossary } = useStoreGlossary()
+  fetchGlossary()
 
   setupLckDesignSystem(app)
   app.use(router)

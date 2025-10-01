@@ -22,12 +22,13 @@ declare module 'vue-router/auto-routes' {
     '/about': RouteRecordInfo<'/about', '/about', Record<never, never>, Record<never, never>>,
     '/admin': RouteRecordInfo<'/admin', '/admin', Record<never, never>, Record<never, never>>,
     '/admin/': RouteRecordInfo<'/admin/', '/admin', Record<never, never>, Record<never, never>>,
-    '/admin/membership/detail': RouteRecordInfo<'/admin/membership/detail', '/admin/membership/detail', Record<never, never>, Record<never, never>>,
-    '/admin/membership/listing': RouteRecordInfo<'/admin/membership/listing', '/admin/membership/listing', Record<never, never>, Record<never, never>>,
-    '/admin/payment/listing': RouteRecordInfo<'/admin/payment/listing', '/admin/payment/listing', Record<never, never>, Record<never, never>>,
-    '/admin/registration/detail': RouteRecordInfo<'/admin/registration/detail', '/admin/registration/detail', Record<never, never>, Record<never, never>>,
-    '/admin/registration/listing': RouteRecordInfo<'/admin/registration/listing', '/admin/registration/listing', Record<never, never>, Record<never, never>>,
+    '/admin/famille/fiche': RouteRecordInfo<'/admin/famille/fiche', '/admin/famille/fiche', Record<never, never>, Record<never, never>>,
+    '/admin/famille/listing': RouteRecordInfo<'/admin/famille/listing', '/admin/famille/listing', Record<never, never>, Record<never, never>>,
+    '/admin/inscription/fiche': RouteRecordInfo<'/admin/inscription/fiche', '/admin/inscription/fiche', Record<never, never>, Record<never, never>>,
+    '/admin/inscription/listing': RouteRecordInfo<'/admin/inscription/listing', '/admin/inscription/listing', Record<never, never>, Record<never, never>>,
+    '/admin/tresorerie/listing': RouteRecordInfo<'/admin/tresorerie/listing', '/admin/tresorerie/listing', Record<never, never>, Record<never, never>>,
     '/auth/login': RouteRecordInfo<'/auth/login', '/auth/login', Record<never, never>, Record<never, never>>,
+    '/auth/verify-signup': RouteRecordInfo<'/auth/verify-signup', '/auth/verify-signup', Record<never, never>, Record<never, never>>,
     '/registration/': RouteRecordInfo<'/registration/', '/registration', Record<never, never>, Record<never, never>>,
   }
 }

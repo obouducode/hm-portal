@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { definePage } from 'unplugin-vue-router/runtime'
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { lckWorkspaceHM } from '@/sdk/lckWorkspaceHM'
 import PrimeDatatable from 'primevue/datatable'
 import PrimeColumn from 'primevue/column'
@@ -14,25 +14,59 @@ definePage({
 })
 
 const loading = ref(false)
-const registrations = ref()
-const search = ref('')
+const registrations = ref({
+  total: 0,
+  data: []
+})
+const glossaries = ref<{
+  seasons: MsSeason[]
+}>({
+  seasons: []
+})
+const filters = ref<{
+  search?: string
+  season?: string
+}>({})
 
 const pagination = ref({
-  limit: 200,
+  limit: 50,
   skip: 0
 })
+
+async function loadGlossaries() {
+  loading.value = true
+  try {
+    const seasons = await lckWorkspaceHM.glossaries.season.record.find()
+    glossaries.value.seasons = seasons.data
+  } catch (e) {
+    console.error(e)
+  }
+  loading.value = false
+}
 
 async function findRegistrations() {
   loading.value = true
   try {
+    const queryFilters: Record<string, unknown> = {}
+    if (filters.value.search)
+      queryFilters.lastname = {
+        $ilike: '%' + filters.value.search + '%'
+      }
+    if (filters.value.season) {
+      queryFilters['activity_course.season_id'] = filters.value.season
+    }
     registrations.value = await lckWorkspaceHM.tables.registration.record.find({
       query: {
         $fetch: '[membership_person,activity_course]',
         $limit: pagination.value.limit,
-        $skip: pagination.value.skip
-        // lastname: {
-        //   $ilike: '%' + search.value + '%'
-        // }
+        $skip: pagination.value.skip,
+        // need to be implement in LocoKit engine first
+        // see https://github.com/locokit/locokit/issues/378
+        // $sort: {
+        //   'activity_course.slug': 1,
+        //   lastname: 1
+        // },
+        ...queryFilters
       }
     })
   } catch (e) {
@@ -45,15 +79,27 @@ async function findRegistrations() {
  * On mounted, try to load memberships,
  * according router query params
  */
-onMounted(findRegistrations)
-function onPage(event: PageState) {
+onMounted(async () => {
+  await loadGlossaries()
+  findRegistrations()
+})
+async function onPage(event: PageState) {
   pagination.value.skip = event.first
   findRegistrations()
 }
+
+watch(() => filters, findRegistrations, { deep: true })
 </script>
 
 <template>
   <main class="size-full overflow-auto">
+    <input type="text" v-model="filters.search" />
+    <select v-model="filters.season">
+      <option></option>
+      <option v-for="season in glossaries.seasons" :key="season.slug" :value="season.id">
+        {{ season.name }}
+      </option>
+    </select>
     <prime-datatable
       lazy
       :value="registrations.data"
@@ -84,10 +130,7 @@ function onPage(event: PageState) {
       </prime-column>
       <prime-column field="activity_course.name" header="Activité"></prime-column>
       <prime-column field="price" header="Montant inscription">
-        <template #body="slotProps">
-          {{ slotProps.data.price.toLocaleString('en-US', { style: 'currency', currency: 'EUR' }) }}
-          €
-        </template>
+        <template #body="slotProps"> {{ slotProps.data.price }} € </template>
       </prime-column>
       <prime-column field="cancelled" header="Annulation">
         <template #body="slotProps">

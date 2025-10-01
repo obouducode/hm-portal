@@ -1,5 +1,4 @@
 @import url('bootstrap-icons/font/bootstrap-icons.css');
-@import url('@locokit/designsystem/dist/style.css');
 @import url('primeicons/primeicons.css');
 @tailwind base;
 @tailwind components;
