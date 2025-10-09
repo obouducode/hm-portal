@@ -75,14 +75,14 @@ import { RouterLink } from 'vue-router'
               </svg>
             </button>
             <ul class="py-2 space-y-2">
-              <li>
+<!--               <li>
                 <router-link
                   to="/admin/famille/listing"
                   class="flex items-center p-2 pl-11 w-full text-base font-normal text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
                 >
                   Listing
                 </router-link>
-              </li>
+              </li> -->
               <li>
                 <router-link
                   to="/admin/famille/fiche"
@@ -101,7 +101,7 @@ import { RouterLink } from 'vue-router'
               </li> -->
             </ul>
           </li>
-          <li>
+         <!--  <li>
             <button
               type="button"
               class="flex items-center p-2 w-full text-base font-normal text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
@@ -121,7 +121,6 @@ import { RouterLink } from 'vue-router'
                 ></path>
               </svg>
               <span class="flex-1 ml-3 text-left whitespace-nowrap">Inscriptions</span>
-              <!-- TODO: activer les sous éléments-->
               <svg
                 aria-hidden="true"
                 class="w-6 h-6 hidden"
@@ -154,7 +153,7 @@ import { RouterLink } from 'vue-router'
                 </router-link>
               </li>
             </ul>
-          </li>
+          </li> -->
           <!-- <li>
             <button
               type="button"
