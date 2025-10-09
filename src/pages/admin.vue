@@ -1,5 +1,15 @@
 <script setup lang="ts">
 import { RouterLink } from 'vue-router'
+import { lckClient } from '@/sdk'
+import { router } from '@/router'
+
+function logout() {
+  lckClient.logout()
+  router.push({
+    name: '/'
+  })
+}
+
 </script>
 <template>
   <div class="flex h-full">
@@ -329,7 +339,7 @@ import { RouterLink } from 'vue-router'
         </ul>
       </div>
       <div class="hidden absolute bottom-0 left-0 justify-center p-4 space-x-4 w-full lg:flex z-20">
-        <router-link
+        <!-- <router-link
           to="/"
           class="inline-flex justify-center p-2 text-gray-500 rounded cursor-pointer dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-600"
         >
@@ -362,10 +372,10 @@ import { RouterLink } from 'vue-router'
               clip-rule="evenodd"
             ></path>
           </svg>
-        </router-link>
-        <router-link
-          to="/"
+        </router-link> -->
+        <div
           class="inline-flex justify-center p-2 text-gray-500 rounded cursor-pointer dark:text-gray-400 dark:hover:text-white hover:text-gray-900 hover:bg-gray-100 dark:hover:bg-gray-600"
+          @click="logout"
         >
           <svg
             class="w-6 h-6"
@@ -382,7 +392,7 @@ import { RouterLink } from 'vue-router'
               d="M20 12H8m12 0-4 4m4-4-4-4M9 4H7a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h2"
             />
           </svg>
-        </router-link>
+        </div>
       </div>
     </aside>
     <div class="flex-grow flex flex-col">
