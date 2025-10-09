@@ -24,7 +24,7 @@ export const useStoreAuth = defineStore('auth', () => {
       authState.value.isAuthenticated = true
       authState.value.user = result.user
     } catch (error) {
-      console.error(e)
+      console.error(error)
       authState.value.error = error as Error
       authState.value.isAuthenticated = false
     }
