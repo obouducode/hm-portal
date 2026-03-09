@@ -121,7 +121,7 @@ watch(() => filters, findRegistrations, { deep: true })
 
 <template>
   <header class="bg-white border-b p-2 md:p-4">
-    <h1 class="text-3xl leading-8 text-color font-medium">Fiches d'inscriptions</h1>
+    <h1 class="text-3xl leading-8  font-medium">Fiches d'inscriptions</h1>
   </header>
 
   <div class="flex gap-4 p-4 flex-1 w-full overflow-hidden">
@@ -130,7 +130,7 @@ watch(() => filters, findRegistrations, { deep: true })
     >
       <!-- affichage des inscriptions avec moteur de recherche et tri ? -->
       <div class="flex flex-col gap-1">
-        <label for="search" class="text-color text-sm"> Recherche libre </label>
+        <label for="search" class=" text-sm"> Recherche libre </label>
         <prime-input-text
           v-model="filters.search"
           id="search"
@@ -142,7 +142,7 @@ watch(() => filters, findRegistrations, { deep: true })
       </div>
 
       <div class="flex flex-col gap-1">
-        <label for="search" class="text-color text-sm"> Saison </label>
+        <label for="search" class=" text-sm"> Saison </label>
         <select v-model="filters.season" class="rounded border p-1 bg-white">
           <option selected :value="null">Sélectionner une saison</option>
           <option v-for="season in glossaries.seasons" :key="season.slug" :value="season.id">
@@ -152,7 +152,7 @@ watch(() => filters, findRegistrations, { deep: true })
       </div>
       <div class="flex gap-2">
         <div class="w-1/2 flex flex-col gap-1">
-          <label for="search" class="text-color text-sm"> Cours </label>
+          <label for="search" class=" text-sm"> Cours </label>
           <select v-model="filters.cours" class="rounded border p-1 bg-white">
             <option selected :value="null">Sélectionner un cours</option>
             <option
@@ -165,7 +165,7 @@ watch(() => filters, findRegistrations, { deep: true })
           </select>
         </div>
         <div class="w-1/2 flex flex-col gap-1">
-          <label for="search" class="text-color text-sm"> Instrument </label>
+          <label for="search" class=" text-sm"> Instrument </label>
           <select v-model="filters.instrument" class="rounded border p-1 bg-white">
             <option selected :value="null">Sélectionner un instrument</option>
             <option
@@ -225,7 +225,7 @@ watch(() => filters, findRegistrations, { deep: true })
 
       <template v-else>
         <header>
-          <div class="text-2xl leading-8 text-color font-medium">
+          <div class="text-2xl leading-8  font-medium">
             Fiche d'inscription de {{ currentRegistration.membership_person!.lastname }}
             {{ currentRegistration.membership_person!.firstname }}
           </div>

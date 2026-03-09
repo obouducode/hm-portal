@@ -27,7 +27,7 @@ const mainStyle = computed(() => {
 <template>
   <prime-toast position="top-right" />
   <header
-    class="bg-white dark:bg-slate-900 p-1 lg:p-2 shadow-md sticky top-0 w-full h-16 z-10"
+    class="p-1 lg:p-2 shadow-md sticky top-0 w-full h-16 z-10"
     v-if="route.meta.displayHeader"
   >
     <nav class="flex items-center justify-between lg:justify-between w-full lg:w-[64rem] mx-auto">
@@ -35,7 +35,7 @@ const mainStyle = computed(() => {
         <img
           alt="Héric Musique logo"
           src="/assets/logo_hm.png"
-          class="inline-block mr-2 lg:mr-4 h-12 text-white"
+          class="inline-block mr-2 lg:mr-4 h-12"
         />
         <h1 class="text-xl font-medium hidden md:block">Héric Musique</h1>
       </router-link>
@@ -53,7 +53,6 @@ const mainStyle = computed(() => {
         to="/auth/login"
         icon="bi bi-person"
         label="Se connecter"
-        class="dark:text-white"
         v-if="!authState.isAuthenticated"
       />
 
@@ -74,7 +73,7 @@ const mainStyle = computed(() => {
   </main>
 
   <footer
-    class="bg-slate-300 dark:bg-slate-900 w-full p-4 md:p-16 shadow-xl border-t border-solid border-slate-400"
+    class="bg-slate-300 w-full p-4 md:p-16 shadow-xl border-t border-solid border-slate-400"
     v-if="route.meta.displayFooter"
   >
     <div class="max-w-[64rem] mx-auto flex flex-col md:flex-row gap-4 justify-between text-center">
@@ -104,6 +103,12 @@ const mainStyle = computed(() => {
 </template>
 
 <style>
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: light !important;
+  }
+}
+
 :root {
   --hm-color: 36, 62, 58;
 }
