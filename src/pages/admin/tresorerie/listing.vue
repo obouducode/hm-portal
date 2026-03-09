@@ -2,6 +2,7 @@
 import { definePage } from 'unplugin-vue-router/runtime'
 import { onMounted, ref } from 'vue'
 import { lckWorkspaceHM } from '@/sdk/lckWorkspaceHM'
+import { headers } from '@/sdk'
 import PrimeDatatable from 'primevue/datatable'
 import PrimeColumn from 'primevue/column'
 import type { PageState } from 'primevue/paginator'
@@ -28,7 +29,8 @@ async function findPayments() {
         $fetch: '[payment_step]',
         $limit: pagination.value.limit,
         $skip: pagination.value.skip
-      }
+      },
+      headers
     })
   } catch (e) {
     console.error(e)

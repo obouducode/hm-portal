@@ -2,6 +2,8 @@
 import { definePage } from 'unplugin-vue-router/runtime'
 import { onMounted, ref, watch } from 'vue'
 import { lckWorkspaceHM } from '@/sdk/lckWorkspaceHM'
+import { headers } from '@/sdk'
+
 import PrimeDatatable from 'primevue/datatable'
 import PrimeColumn from 'primevue/column'
 import PrimeTag from 'primevue/tag'
@@ -36,7 +38,9 @@ const pagination = ref({
 async function loadGlossaries() {
   loading.value = true
   try {
-    const seasons = await lckWorkspaceHM.glossaries.season.record.find()
+    const seasons = await lckWorkspaceHM.glossaries.season.record.find({
+      headers
+    })
     glossaries.value.seasons = seasons.data
   } catch (e) {
     console.error(e)
@@ -67,7 +71,8 @@ async function findRegistrations() {
         //   lastname: 1
         // },
         ...queryFilters
-      }
+      },
+      headers
     })
   } catch (e) {
     console.error(e)

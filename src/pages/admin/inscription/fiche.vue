@@ -4,10 +4,10 @@ import { onMounted, ref, watch } from 'vue'
 import { lckWorkspaceHM } from '@/sdk/lckWorkspaceHM'
 
 import PrimeTag from 'primevue/tag'
-import PrimeButton from 'primevue/button'
 import PrimePaginator, { type PageState } from 'primevue/paginator'
 import PrimeInputText from 'primevue/inputtext'
 import { type Paginated } from '@feathersjs/feathers'
+import { headers } from '@/sdk'
 
 definePage({
   meta: {
@@ -50,14 +50,19 @@ const currentRegistration = ref<MsRegistration>()
 async function loadGlossaries() {
   loading.value = true
   try {
-    const seasons = await lckWorkspaceHM.glossaries.season.record.find()
+    const seasons = await lckWorkspaceHM.glossaries.season.record.find({
+      headers
+    })
     glossaries.value.seasons = seasons.data
-    const activity_instrument = await lckWorkspaceHM.glossaries.activity_instrument.record.find()
+    const activity_instrument = await lckWorkspaceHM.glossaries.activity_instrument.record.find({
+      headers
+    })
     glossaries.value.activity_instruments = activity_instrument.data
     const activity_course = await lckWorkspaceHM.glossaries.activity_course.record.find({
       query: {
         $limit: 100
-      }
+      },
+      headers
     })
     glossaries.value.activity_courses = activity_course.data
   } catch (e) {
@@ -95,7 +100,8 @@ async function findRegistrations() {
         //   lastname: 1
         // },
         ...queryFilters
-      }
+      },
+      headers
     })
   } catch (e) {
     console.error(e)

@@ -2,6 +2,7 @@ import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import { lckWorkspaceHM } from '@/sdk/lckWorkspaceHM'
 import type { Paginated } from '@feathersjs/feathers'
+import { headers } from '@/sdk'
 
 /**
  * Glossary store,
@@ -22,17 +23,20 @@ export const useStoreGlossary = defineStore('glossary', () => {
       const seasonsResponse = (await lckWorkspaceHM.glossaries.season.record.find({
         query: {
           $limit: 100
-        }
+        },
+        headers
       })) as Paginated<MsSeason>
       const coursesResponse = (await lckWorkspaceHM.glossaries.activity_course.record.find({
         query: {
           $limit: 100
-        }
+        },
+        headers
       })) as Paginated<MsActivityCourse>
       const instrumentsResponse = (await lckWorkspaceHM.glossaries.activity_instrument.record.find({
         query: {
           $limit: 100
-        }
+        },
+        headers
       })) as Paginated<MsActivityInstrument>
       glossaryState.value.seasons = seasonsResponse.data.reduce(
         (acc, currentSeason) => {

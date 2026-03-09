@@ -17,12 +17,13 @@ import { useStoreGlossary } from '@/stores/glossaries'
 import { useToast } from 'primevue'
 import PrimeDialog from 'primevue/dialog'
 import PrimeMessage from 'primevue/message'
+import { headers } from '@/sdk'
 
 const loading = ref(false)
 const memberships = ref<Paginated<MsMembership>>({ total: 0, limit: 20, skip: 0, data: [] })
 const search = ref('')
 const currentMembership = ref()
-const { glossaryState } = useStoreGlossary()
+const { glossaryState, fetch: fetchGlossary } = useStoreGlossary()
 const toast = useToast()
 
 const status = ref([
@@ -33,7 +34,7 @@ const status = ref([
   { name: 'À vérifier', code: 'TO_CHECK' }
 ])
 const pagination = ref({
-  limit: 20,
+  limit: 100,
   skip: 0
 })
 
@@ -61,7 +62,8 @@ async function findMembership() {
         //     }
         //   }
         // ]
-      }
+      },
+      headers
     })
   } catch (e) {
     console.error(e)
@@ -87,8 +89,9 @@ async function retrievePayment(membershipId: string) {
   const paymentResult = await lckWorkspaceHM.tables.payment.record.find({
     query: {
       membership_id: membershipId,
-      $fetch: '[payment_step,registration.[membership_person]]'
-    }
+      $fetch: '[payment_step,registration]'
+    },
+    headers
   })
   currentPayment.value = paymentResult.data
   if (currentPayment.value.length > 0) {
@@ -102,9 +105,15 @@ async function onSaveMembership() {
   try {
     const { created_at, updated_at, membership_person, payment, id, ...data } =
       currentMembership.value
-    const membershipResult = await lckWorkspaceHM.tables.membership.record.patch(id, {
-      ...data
-    })
+    const membershipResult = await lckWorkspaceHM.tables.membership.record.patch(
+      id,
+      {
+        ...data
+      },
+      {
+        headers
+      }
+    )
     currentMembership.value = {
       ...currentMembership.value,
       ...membershipResult
@@ -114,7 +123,7 @@ async function onSaveMembership() {
       life: 5000,
       summary: 'Mise à jour OK',
       severity: 'success',
-      detail: "Les informations ont bien été mises à jour."
+      detail: 'Les informations ont bien été mises à jour.'
     })
   } catch (e) {
     toast.add({
@@ -130,13 +139,19 @@ async function onSaveMembership() {
 async function onRowEditSave(event) {
   const { id, amount, information, method, planned_receipt_date, receipt_date } = event.newData
   console.log(id, information, method, planned_receipt_date, receipt_date)
-  await lckWorkspaceHM.tables.paymentStep.record.patch(id, {
-    amount,
-    information,
-    method,
-    planned_receipt_date,
-    receipt_date
-  })
+  await lckWorkspaceHM.tables.paymentStep.record.patch(
+    id,
+    {
+      amount,
+      information,
+      method,
+      planned_receipt_date,
+      receipt_date
+    },
+    {
+      headers
+    }
+  )
 }
 
 /**
@@ -144,15 +159,21 @@ async function onRowEditSave(event) {
  */
 async function onSaveAdhesion(adhesion: MsPayment) {
   try {
-    await lckWorkspaceHM.tables.payment.record.patch(adhesion.id, {
-      information: adhesion.information,
-      status: adhesion.status,
-      category_price: adhesion.category_price,
-      category_amount: adhesion.category_amount,
-      total_amount: adhesion.total_amount,
-      approval_rules: adhesion.approval_rules,
-      approval_broadcast_image: adhesion.approval_broadcast_image,
-    })
+    await lckWorkspaceHM.tables.payment.record.patch(
+      adhesion.id,
+      {
+        information: adhesion.information,
+        status: adhesion.status,
+        category_price: adhesion.category_price,
+        category_amount: adhesion.category_amount,
+        total_amount: adhesion.total_amount,
+        approval_rules: adhesion.approval_rules,
+        approval_broadcast_image: adhesion.approval_broadcast_image
+      },
+      {
+        headers
+      }
+    )
     toast.add({
       closable: true,
       life: 5000,
@@ -176,9 +197,15 @@ async function onSaveAdhesion(adhesion: MsPayment) {
  */
 async function onSaveInscriptionInformation(id: string, information: string) {
   try {
-    await lckWorkspaceHM.tables.registration.record.patch(id, {
-      information
-    })
+    await lckWorkspaceHM.tables.registration.record.patch(
+      id,
+      {
+        information
+      },
+      {
+        headers
+      }
+    )
     toast.add({
       closable: true,
       life: 5000,
@@ -209,11 +236,17 @@ function onDisplayDialogAnnulationInscription(registration: MsRegistration) {
 async function onCancelInscription() {
   if (!currentInscriptionAAnnuler.value) return
   try {
-    await lckWorkspaceHM.tables.registration.record.patch(currentInscriptionAAnnuler.value.id, {
-      cancelation_date: currentInscriptionAAnnuler.value.cancelation_date,
-      cancelation_reason: currentInscriptionAAnnuler.value.cancelation_reason,
-      cancelled: true
-    })
+    await lckWorkspaceHM.tables.registration.record.patch(
+      currentInscriptionAAnnuler.value.id,
+      {
+        cancelation_date: currentInscriptionAAnnuler.value.cancelation_date,
+        cancelation_reason: currentInscriptionAAnnuler.value.cancelation_reason,
+        cancelled: true
+      },
+      {
+        headers
+      }
+    )
     showDialogAnnulationInscription.value = false
     toast.add({
       closable: true,
@@ -238,19 +271,26 @@ async function onCancelInscription() {
  * according router query params
  */
 onMounted(() => {
+  fetchGlossary()
   findMembership()
 })
 
 async function addPaymentStep(paymentId: string, values) {
   console.log('addPaymentStep', paymentId, values)
-  await lckWorkspaceHM.tables.paymentStep.record.create({
-    payment_id: paymentId,
-    ...values
-  })
+  await lckWorkspaceHM.tables.paymentStep.record.create(
+    {
+      payment_id: paymentId,
+      ...values
+    },
+    {
+      headers
+    }
+  )
   const paymentStepsResult = await lckWorkspaceHM.tables.paymentStep.record.find({
     query: {
       payment_id: paymentId
-    }
+    },
+    headers
   })
   /**
    * mise à jour des steps dans l'adhésion courante
@@ -280,7 +320,7 @@ async function selectMembership(m: any) {
 
 <template>
   <header class="bg-white border-b p-2 md:p-4">
-    <h1 class="text-3xl leading-8 text-color font-medium">Fiches familles</h1>
+    <h1 class="text-3xl leading-8  font-medium">Fiches familles</h1>
   </header>
 
   <div class="flex gap-4 p-4 flex-1 w-full overflow-hidden">
@@ -289,7 +329,7 @@ async function selectMembership(m: any) {
     >
       <!-- affichage des adhésions avec moteur de recherche et tri ? -->
       <div class="flex flex-col gap-1">
-        <label for="search" class="text-color text-sm"> Recherche libre </label>
+        <label for="search" class=" text-sm"> Recherche libre </label>
         <prime-input-text
           v-model="search"
           id="search"
@@ -343,12 +383,12 @@ async function selectMembership(m: any) {
       </div>
 
       <div class="h-full pt-4 w-full max-w-[80rem] mx-auto" v-else>
-        <header class="h-10 text-4xl leading-8 text-color font-medium">
+        <header class="h-10 text-4xl leading-8  font-medium">
           {{ currentMembership.lastname }} {{ currentMembership.firstname }}
         </header>
 
         <div class="mt-2 overflow-auto" style="height: calc(100% - 3rem)">
-          <h2 class="text-2xl text-color">Fiche de renseignements</h2>
+          <h2 class="text-2xl ">Fiche de renseignements</h2>
           <section class="border rounded-lg bg-white p-4 my-4 flex flex-col gap-2 items-center">
             <div class="flex flex-wrap gap-4">
               <div class="flex flex-col gap-2 mb-4">
@@ -386,7 +426,7 @@ async function selectMembership(m: any) {
             <prime-button @click="onSaveMembership"> Enregistrer </prime-button>
           </section>
 
-          <h2 class="text-2xl text-color">Membres</h2>
+          <h2 class="text-2xl ">Membres</h2>
 
           <section class="my-4 flex gap-1 flex-wrap">
             <!-- <template v-if="valueSelectButton.value === 1">
@@ -416,7 +456,7 @@ async function selectMembership(m: any) {
             </div>
           </section>
 
-          <h2 class="text-2xl text-color">Adhésions</h2>
+          <h2 class="text-2xl ">Adhésions</h2>
 
           <section class="my-4">
             <div
@@ -440,10 +480,15 @@ async function selectMembership(m: any) {
                 </h2>
                 <prime-message
                   class="ml-auto"
-                  :severity="adhesion.status === 'COMPLETED' ? 'success':
-                  adhesion.status === 'NO_MONEY' ? 'danger': 'warn'"
+                  :severity="
+                    adhesion.status === 'COMPLETED'
+                      ? 'success'
+                      : adhesion.status === 'NO_MONEY'
+                        ? 'danger'
+                        : 'warn'
+                  "
                 >
-                  {{adhesion.status}}
+                  {{ adhesion.status }}
                 </prime-message>
               </div>
 
@@ -523,10 +568,7 @@ async function selectMembership(m: any) {
                     </div>
                   </div>
 
-                  <prime-button
-                    class="mt-4 mx-auto"
-                    @click="onSaveAdhesion(adhesion)"
-                  >
+                  <prime-button class="mt-4 mx-auto" @click="onSaveAdhesion(adhesion)">
                     Enregistrer
                   </prime-button>
                 </div>

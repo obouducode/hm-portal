@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { lckWorkspaceHM } from '@/sdk/lckWorkspaceHM'
+import { headers } from '@/sdk'
 
 import PrimeDatatable from 'primevue/datatable'
 import PrimeColumn from 'primevue/column'
@@ -26,7 +27,8 @@ async function findMembership() {
         lastname: {
           $ilike: '%' + search.value + '%'
         }
-      }
+      },
+      headers
     })
   } catch (e) {
     console.error(e)

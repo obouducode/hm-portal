@@ -84,7 +84,7 @@ function logout() {
               </li> -->
             </ul>
           </li>
-          <li>
+          <!-- <li>
             <button type="button"
               class="flex items-center p-2 w-full text-base font-normal text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100">
               <svg aria-hidden="true"
@@ -118,6 +118,7 @@ function logout() {
               </li>
             </ul>
           </li>
+          -->
           <li>
             <button
               type="button"
@@ -163,6 +164,7 @@ function logout() {
                   État des paiements
                 </router-link>
               </li>
+              <!--
               <li>
                 <router-link
                   to="/admin/tresorerie/budget-previsionnel"
@@ -187,9 +189,11 @@ function logout() {
                   Burning rate
                 </router-link>
               </li>
+              -->
             </ul>
+
           </li>
-          <li>
+<!--          <li>
             <button
               type="button"
               class="flex items-center p-2 w-full text-base font-normal text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100"
@@ -290,6 +294,7 @@ function logout() {
               </li>
             </ul>
           </li>
+            -->
         </ul>
       </div>
       <div class="hidden absolute bottom-0 left-0 justify-center p-4 space-x-4 w-full lg:flex z-20">
