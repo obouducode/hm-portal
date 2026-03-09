@@ -40,6 +40,7 @@ type MsPayment = {
   method: string
   number: string
   membership_id: string // link to the matching MsMembership
+  membership?: MsMembership
   information: string
   season_id: string // link to the matching season
   created_at: string
@@ -51,6 +52,7 @@ type MsPayment = {
   approval_broadcast_image: boolean
   status: 'COMPLETED' | 'MISSING_INFO' | 'MISSING_MONEY' | 'NO_MONEY' | 'TO_CHECK'
   total_amount: number
+  registration?: MsRegistration[]
 }
 
 type MsPaymentStep = {
@@ -75,6 +77,7 @@ type MsActivityCourse = MsGlossary & {
 type MsActivityInstrument = MsGlossary
 
 type MsRegistration = {
+  id: string
   membership_person_id: string
   membership_person?: MsMembershipPerson
   activity_course_id: string
