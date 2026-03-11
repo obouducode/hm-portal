@@ -89,7 +89,7 @@ async function retrievePayment(membershipId: string) {
   const paymentResult = await lckWorkspaceHM.tables.payment.record.find({
     query: {
       membership_id: membershipId,
-      $fetch: '[payment_step,registration]'
+      $fetch: '[payment_step,registration.[membership_person]]'
     },
     headers
   })
@@ -585,8 +585,8 @@ async function selectMembership(m: any) {
                   >
                     <div class="flex justify-between items-center mb-2">
                       <h2 class="text-2xl text-primary">
-                        {{ registration.membership_person.lastname }}
-                        {{ registration.membership_person.firstname }}
+                        {{ registration.membership_person?.lastname }}
+                        {{ registration.membership_person?.firstname }}
                       </h2>
                       <prime-button
                         v-if="!registration.cancelled"
