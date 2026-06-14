@@ -59,7 +59,7 @@ async function sendFormRecord(values: Record<string, any>) {
   stateForm.value.submitting = true
   try {
     const response = await fetch(
-      'https://next.locokit.io/api/workspace/hm_bo/workflow/inscription_2025_2026/run',
+      'https://next.locokit.io/api/workspace/hm_bo/workflow/inscription_2026_2027/run',
       {
         method: 'POST',
         headers: {
@@ -167,23 +167,33 @@ function goToStep(index: number) {
         <img src="/assets/heric_musique_800.png" class="w-48 mx-auto mb-4" />
         <p class="mb-4">
           Vous allez procéder au renseignement du formulaire d'inscription pour l'école de musique
-          d'Héric, pour la saison 2025-2026.
+          d'Héric, pour la saison 2026-2027.
         </p>
-        <h2 class="text-xl font-bold mb-4">Tarifs 2025-2026</h2>
+        <h2 class="text-xl font-bold mb-4">Tarifs 2026-2027</h2>
         <p class="mb-4">
           Vous pouvez retrouver les tarifs des différentes activités en téléchargeant
           <a
-            href="https://www.hericmusique.fr/wp-content/uploads/2025/06/HM_Tarifs_2025-2026-1.pdf"
+            href="https://www.hericmusique.fr/wp-content/uploads/2026/06/HM_Tarifs_2026-2027-3.pdf"
             target="_blank"
             class="underline"
           >
             le fichier disponible ici.
           </a>
         </p>
+        <p class="mb-4">
+          Si vous préférez utiliser le formulaire papier, vous pouvez
+          <a
+            href="https://www.hericmusique.fr/wp-content/uploads/2026/05/HM_InscriptionsFiche2026-2027.pdf"
+            target="_blank"
+            class="underline"
+          >
+            le télécharger le formulaire PDF ici.
+          </a>
+        </p>
 
         <p class="mb-2">
-          <strong>À noter</strong>, pour la rentrée 2025-2026, dans l'objectif d'aider les familles,
-          nous procédons à une <strong>réduction de 10% à partir de la 2ème activité</strong>.
+          <strong>À noter</strong>, pour la rentrée 2026-2027, dans l'objectif d'aider les familles,
+          nous maintenons une <strong>réduction de 10% à partir de la 2ème activité</strong>.
           <br />
           Ces 10% s'appliquent pour l'activité la ou les moins onéreuse•s.
           <br />
@@ -218,7 +228,7 @@ function goToStep(index: number) {
                 <td class="px-2">517,5 €</td>
               </tr>
               <tr>
-                <td class="px-2 text-left">Activité cycle 1, accordéon</td>
+                <td class="px-2 text-left">Activité cycle 2, accordéon</td>
                 <td class="px-2">635 €</td>
                 <td class="px-2">1</td>
                 <td class="px-2"></td>
@@ -226,17 +236,17 @@ function goToStep(index: number) {
               </tr>
               <tr>
                 <td class="px-2 text-left">Chorale enfant</td>
-                <td class="px-2">150 €</td>
+                <td class="px-2">130 €</td>
                 <td class="px-2">1</td>
                 <td class="px-2">10%</td>
-                <td class="px-2">135 €</td>
+                <td class="px-2">117 €</td>
               </tr>
               <tr>
                 <td class="px-2 text-left">Adhésion à l'asso</td>
-                <td class="px-2">25 €</td>
+                <td class="px-2">35 €</td>
                 <td class="px-2">1</td>
                 <td class="px-2"></td>
-                <td class="px-2">25 €</td>
+                <td class="px-2">35 €</td>
               </tr>
             </tbody>
             <tfoot>
@@ -245,13 +255,13 @@ function goToStep(index: number) {
                 <th></th>
                 <th></th>
                 <th class="px-2">Total</th>
-                <th class="px-2">1287,5 €</th>
+                <th class="px-2">1304,5 €</th>
               </tr>
             </tfoot>
           </table>
         </div>
         <p class="mb-4">
-          À titre indicatif, voici le <strong>planning estimé de la saison 2025-2026</strong> :
+          À titre indicatif, voici le <strong>planning estimé de la saison 2026-2027</strong> :
         </p>
 
         <ul class="ml-4 list-disc mb-2">
@@ -265,8 +275,11 @@ function goToStep(index: number) {
           <li><b>Formation musicale</b> : lundi soir et mardi soir</li>
           <li><b>Piano</b> : mardi soir et mercredi</li>
           <li><b>Éveil musical</b> : mercredi après-midi</li>
-          <li><b>Atelier batucada adulte</b> : mercredi</li>
+          <li><b>Violon</b> : jeudi soir</li>
           <li><b>Flûte, saxophone, clarinette</b> : mercredi après-midi</li>
+          <li><b>Batucada enfant</b> : mercredi</li>
+          <li><b>Batucada adulte</b> : mercredi</li>
+          <li><b>"Boeuf sur le toit"</b> : jeudi soir</li>
         </ul>
 
         Les activités adultes sont planifiées directement avec les professeurs.

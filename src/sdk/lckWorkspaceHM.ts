@@ -2,7 +2,6 @@ import { lckClient } from './index'
 
 const BASE_HM_DS = 'workspace/hm_bo/datasource/datasource_hm'
 const BASE_HM_TABLE = BASE_HM_DS + '/table'
-const BASE_HM_WORKFLOW = BASE_HM_DS + '/workflow'
 
 export const lckWorkspaceHM = {
   glossaries: {
