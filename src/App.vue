@@ -117,6 +117,6 @@ const mainStyle = computed(() => {
 }
 html,
 body {
-  font-size: 14px;
+  font-size: 16px;
 }
 </style>
