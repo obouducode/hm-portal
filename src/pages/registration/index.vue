@@ -404,7 +404,7 @@ function goToStep(index: number) {
           </p>
           <p>Vous pouvez</p>
           <ul class="ml-4 list-disc mb-2">
-            <li>nous l'apporter lors du forum des associations le 6 septembre 2025</li>
+            <li>nous l'apporter lors du forum des associations le 5 septembre 2026</li>
             <li>nous le transmettre en main propre</li>
             <li>
               nous le déposer dans une enveloppe en mairie en précisant que c'est pour Héric Musique
