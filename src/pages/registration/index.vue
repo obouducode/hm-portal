@@ -183,7 +183,7 @@ function goToStep(index: number) {
         <p class="mb-4">
           Si vous préférez utiliser le formulaire papier, vous pouvez
           <a
-            href="https://www.hericmusique.fr/wp-content/uploads/2026/05/HM_InscriptionsFiche2026-2027.pdf"
+            href="https://www.hericmusique.fr/wp-content/uploads/2026/06/HM_InscriptionsFiche2026-2027-2.pdf"
             target="_blank"
             class="underline"
           >
