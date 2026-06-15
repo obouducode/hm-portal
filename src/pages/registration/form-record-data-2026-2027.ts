@@ -212,18 +212,18 @@ export const teach_years = [
 export const categories = [
   {
     label: 'Tranche 1 (0 - 550 €)',
-    value: '1'
+    value: 1
   },
   {
     label: 'Tranche 2 (551 - 800 €)',
-    value: '2'
+    value: 2
   },
   {
     label: 'Tranche 3 (801 - 1050 €)',
-    value: '3'
+    value: 3
   },
   {
     label: 'Tranche 4 (> 1051 €) ou choriste/hors cursus',
-    value: '4'
+    value: 4
   }
 ]

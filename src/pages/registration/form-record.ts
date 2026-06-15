@@ -144,7 +144,7 @@ export const formRecord: FormRecord = {
           label: 'Montant du quotient familial',
           description: ['Montant fourni par la CAF pour le calcul de la tranche'],
           id: 'category_amount',
-          component: FIELD_COMPONENT.INPUT_TEXT,
+          component: FIELD_COMPONENT.INPUT_NUMBER,
           type: FIELD_TYPE.NUMBER,
           attrs: function ($field: any) {
             return {
@@ -162,7 +162,7 @@ export const formRecord: FormRecord = {
           type: FIELD_TYPE.STRING,
           component: FIELD_COMPONENT.SINGLE_SELECT,
           defaultValue() {
-            return 'tranche4'
+            return 4
           },
           source: {
             options: categories,
