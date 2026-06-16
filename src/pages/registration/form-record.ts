@@ -503,11 +503,15 @@ export const formRecord: FormRecord = {
     {
       label: 'Paiement',
       summary: true,
-      description: ['Merci de renseigner vos modalités de paiement'],
+      description: ['Merci de préciser vos modalités de paiement.'],
       fields: [
         {
           label: 'Information sur paiements',
-          description: [''],
+          description: [
+            'En cas de paiement par chèque, vous pouvez préciser au dos le mois d\'encaissement souhaité.',
+            'Nous procédons aux encaissements entre le 27 du mois courant et le 5 du mois suivant.',
+            'Si aucun souhait n\'est précisé, nous ventilons les encaissements sur toute l\'année.'
+          ],
           id: 'payment_information',
           type: FIELD_TYPE.STRING,
           component: FIELD_COMPONENT.TEXTAREA

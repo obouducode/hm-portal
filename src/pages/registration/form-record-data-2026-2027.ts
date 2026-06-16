@@ -1,50 +1,31 @@
 /**
  * Données pour le formulaire 2026-2027
  */
+
 export const workshops = [
   {
-    label: 'Les sons et le souffle (Sophie)',
-    value: 'sophie_sons_souffle'
+    label: '[Cycle 1] Le rythme signé avec Régis',
+    value: '2026_atelier_rgu_rythme_signe'
   },
   {
-    label: 'Batucada enfant (Olaf)',
-    value: 'olaf_batucada'
+    label: '[Cycle 1] Atelier MAO et musique libre avec Patrick',
+    value: '2026_atelier_pbi_cycle1_mao'
   },
   {
-    label: 'Carnaval (Virginie)',
-    value: 'virginie_carnaval'
+    label: '[Cycle 1 + 2] Batucada enfant avec Olaf',
+    value: '2026_atelier_ogu_batucada'
   },
   {
-    label: 'Répertoire « Les Ogres de Barback » (Martine)',
-    value: 'martine_ogres'
+    label: '[Cycle 2] Atelier Création musicale avec Patrick',
+    value: '2026_atelier_pbi_cycle2_crea'
   },
   {
-    label: 'Le rythme signé (Régis)',
-    value: 'regis_rythme_signe'
+    label: '[??] Projet spectacle avec Ellen',
+    value: '2026_atelier_edu_spectacle'
   },
   {
-    label: 'Atelier batterie / piano / sax (Sophie)',
-    value: 'sophie_atelier_3instrus'
-  },
-  {
-    label: 'Stage musescore / prise de son (Patrick)',
-    value: 'patrick_musescore'
-  },
-  {
-    label: 'Atelier de création musicale',
-    value: '???'
-  },
-  {
-    label: 'Projet spectacle (Ellen)',
-    value: 'ellen_projet_spectacle'
-  },
-  {
-    label: 'Atelier Musiques actuelles ou improvisées « jazz » (cycle 2 et HC)',
-    value: 'Atelier Musiques actuelles ou improvisées « jazz » (cycle 2 et HC)'
-  },
-  {
-    label: 'Atelier « rock » (cycle 2 et HC)',
-    value: 'Atelier « rock » (cycle 2 et HC)'
+    label: '[Cycle 2 + HC] Atelier Rock avec Marc',
+    value: '2026_atelier_mbr_rock'
   }
 ]
 
