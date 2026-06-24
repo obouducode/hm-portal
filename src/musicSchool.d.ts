@@ -12,6 +12,7 @@ type MsMembershipPerson = {
   membership?: MsMembership
   lastname: string
   firstname: string
+  birthday?: string
   registration?: MsRegistration[]
 }
 
@@ -95,5 +96,5 @@ type MsRegistration = {
   workshop_choice_2?: string
   workshop_choice_3?: string
   activity_want_music_book: boolean
-  activity_teach_year: number
+  activity_teach_year: string
 }

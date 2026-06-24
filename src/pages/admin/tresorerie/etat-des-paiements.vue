@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { definePage } from 'unplugin-vue-router/runtime'
-import { onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
+import { format } from 'date-fns'
 import { lckWorkspaceHM } from '@/sdk/lckWorkspaceHM'
 
 import PrimeDatatable from 'primevue/datatable'
@@ -12,15 +13,21 @@ import PrimeInputNumber from 'primevue/inputnumber'
 import PrimeSelect from 'primevue/select'
 import PrimeTag from 'primevue/tag'
 import { paymentStepFields } from '../famille/membershipFieldsTypes'
+import {
+  teach_years,
+  workshops as workshops2026
+} from '@/pages/registration/form-record-data-2026-2027'
+import { workshops as workshops2025 } from '@/pages/registration/form-record-data-2025-2026'
 
 import DataForm from '@/components/data-form.vue'
 
 import { type Paginated } from '@feathersjs/feathers'
 import { headers } from '@/sdk'
 import { useStoreGlossary } from '@/stores/glossaries'
-import { useToast } from 'primevue'
+import { useToast, useConfirm } from 'primevue'
 // import PrimeDialog from 'primevue/dialog'
 import PrimeMessage from 'primevue/message'
+import ConfirmDialog from 'primevue/confirmdialog'
 
 definePage({
   meta: {
@@ -29,6 +36,58 @@ definePage({
 })
 const { glossaryState, fetch: fetchGlossary } = useStoreGlossary()
 const toast = useToast()
+const confirm = useConfirm()
+
+/**
+ * Options for the editable course / instrument selects,
+ * derived from the glossary loaded in store and scoped to the
+ * season of the currently selected payment.
+ *
+ * If a glossary isn't season-scoped (no season_id on its items),
+ * we keep all of its entries.
+ */
+function filterOptionsBySeason(items: any[]): any[] {
+  const seasonId = currentPayment.value?.season_id
+  if (!seasonId) return items
+  const isSeasonScoped = items.some((i) => i.season_id != null)
+  if (!isSeasonScoped) return items
+  return items.filter((i) => i.season_id === seasonId)
+}
+const courseOptions = computed(() =>
+  filterOptionsBySeason(Object.values(glossaryState.courses))
+)
+const instrumentOptions = computed(() =>
+  filterOptionsBySeason(Object.values(glossaryState.instruments))
+)
+
+/**
+ * Formation musicale : french labels, stable values (first_year, second...).
+ */
+const teachYearOptions = teach_years
+const teachYearByValue = Object.fromEntries(teach_years.map((t) => [t.value, t]))
+function teachYearLabel(value?: string) {
+  if (!value) return '—'
+  return teachYearByValue[value]?.label ?? value
+}
+
+/**
+ * Workshops aren't a glossary table : they live as per-season static lists.
+ * We merge both seasons (deduplicated by value) so any stored choice resolves
+ * to a label and can be re-selected, whatever the season of the payment.
+ */
+const workshopOptions = (() => {
+  const seen = new Set<string>()
+  return [...workshops2026, ...workshops2025].filter((w) => {
+    if (seen.has(w.value)) return false
+    seen.add(w.value)
+    return true
+  })
+})()
+const workshopByValue = Object.fromEntries(workshopOptions.map((w) => [w.value, w]))
+function workshopLabel(value?: string) {
+  if (!value) return ''
+  return workshopByValue[value]?.label ?? value
+}
 
 const loading = ref(false)
 const payments = ref<Paginated<MsPayment>>({
@@ -39,18 +98,21 @@ const payments = ref<Paginated<MsPayment>>({
 })
 const status = ref([
   { name: 'Complet', code: 'COMPLETED', class: 'bg-green-300 text-green-900' },
-  { name: 'Manque informations', code: 'MISSING_INFO', class: 'bg-orange-300 text-orange-900'  },
-  { name: 'Manque paiement', code: 'MISSING_MONEY', class: 'bg-orange-300 text-orange-900'  },
-  { name: 'Aucun paiement', code: 'NO_MONEY', class: 'bg-orange-300 text-orange-900'  },
-  { name: 'À vérifier', code: 'TO_CHECK', class: 'bg-orange-300 text-orange-900'  },
+  { name: 'Manque informations', code: 'MISSING_INFO', class: 'bg-orange-300 text-orange-900' },
+  { name: 'Manque paiement', code: 'MISSING_MONEY', class: 'bg-orange-300 text-orange-900' },
+  { name: 'Aucun paiement', code: 'NO_MONEY', class: 'bg-orange-300 text-orange-900' },
+  { name: 'À vérifier', code: 'TO_CHECK', class: 'bg-orange-300 text-orange-900' }
 ])
-const statusByCode = status.value.reduce((acc, s) => {
-  acc[s.code] = s
-  return acc
-}, {} as Record<string, {name: string, code: string}>)
+const statusByCode = status.value.reduce(
+  (acc, s) => {
+    acc[s.code] = s
+    return acc
+  },
+  {} as Record<string, { name: string; code: string }>
+)
 const glossaries = ref<{
   seasons: MsSeason[]
-  status: {id: string, slug: string, name: string}[]
+  status: { id: string; slug: string; name: string }[]
 }>({
   seasons: [],
   status: status.value.reduce(
@@ -58,11 +120,11 @@ const glossaries = ref<{
       acc.push({
         id: s.code,
         slug: s.code,
-        name: s.name,
+        name: s.name
       })
       return acc
     },
-    [] as {id: string, slug: string, name: string}[]
+    [] as { id: string; slug: string; name: string }[]
   )
 })
 const filters = ref<{
@@ -70,7 +132,7 @@ const filters = ref<{
   season?: string
   status?: string
 }>({
-  season: 'fbe54af7-8627-4d56-bb49-e76e5626e812' // saison 2025 2026
+  season: '654a19dd-ee2a-43dd-b4b5-a69b2dbb51db' // saison 2026 2027
 })
 const editingRows = ref()
 
@@ -134,15 +196,15 @@ async function findPayment(id: string) {
   try {
     currentPayment.value = await lckWorkspaceHM.tables.payment.record.get(id, {
       query: {
-        $fetch: '[membership,registration.[membership_person],payment_step]',
+        $fetch: '[membership,registration.[membership_person],payment_step]'
       },
       headers
     })
   } catch (e) {
     console.error(e)
   }
-  loading.value = false}
-
+  loading.value = false
+}
 
 /**
  * Engistrement des modifications des infos de l'adhésion
@@ -259,6 +321,179 @@ async function addPaymentStep(paymentId: string, values) {
 }
 
 /**
+ * Mise à jour complète d'une inscription :
+ * - les champs de l'inscription (cours, instrument, ateliers, prix...)
+ * - l'identité de l'élève rattaché (table membership_person)
+ *
+ * Utile lorsqu'un adhérent s'est trompé lors de sa saisie.
+ */
+async function onSaveRegistration(registration: MsRegistration): Promise<boolean> {
+  try {
+    await lckWorkspaceHM.tables.registration.record.patch(
+      registration.id,
+      {
+        activity_course_id: registration.activity_course_id,
+        activity_instrument_id: registration.activity_instrument_id,
+        activity_teach_year: registration.activity_teach_year,
+        activity_want_music_book: registration.activity_want_music_book,
+        workshop_choice_1: registration.workshop_choice_1,
+        workshop_choice_2: registration.workshop_choice_2,
+        workshop_choice_3: registration.workshop_choice_3,
+        information: registration.information,
+        price: registration.price,
+        discount: registration.discount,
+        final_price: registration.final_price
+      },
+      {
+        headers
+      }
+    )
+    if (registration.membership_person) {
+      await lckWorkspaceHM.tables.membership_person.record.patch(
+        registration.membership_person.id,
+        {
+          firstname: registration.membership_person.firstname,
+          lastname: registration.membership_person.lastname,
+          birthday: toDateInput(registration.membership_person.birthday) || null
+        },
+        {
+          headers
+        }
+      )
+    }
+    toast.add({
+      closable: true,
+      life: 5000,
+      summary: 'Mise à jour OK',
+      severity: 'success',
+      detail: "L'inscription a bien été mise à jour."
+    })
+    return true
+  } catch (e) {
+    console.error(e)
+    toast.add({
+      closable: true,
+      life: 5000,
+      summary: 'Mise à jour NOK',
+      severity: 'error',
+      detail: "L'inscription n'a pas pu être mise à jour...."
+    })
+    return false
+  }
+}
+
+/**
+ * Suppression définitive d'une inscription,
+ * après confirmation de l'utilisateur.
+ *
+ * Utile lorsqu'une inscription a été saisie par erreur.
+ */
+function onDeleteRegistration(registration: MsRegistration) {
+  const name =
+    `${registration.membership_person?.firstname ?? ''} ${registration.membership_person?.lastname ?? ''}`.trim()
+  confirm.require({
+    header: "Supprimer l'inscription",
+    message: `Voulez-vous vraiment supprimer définitivement l'inscription${name ? ' de ' + name : ''} ? Cette action est irréversible.`,
+    icon: 'pi pi-exclamation-triangle',
+    rejectLabel: 'Annuler',
+    acceptLabel: 'Supprimer',
+    acceptClass: 'p-button-danger',
+    accept: async () => {
+      try {
+        await lckWorkspaceHM.tables.registration.record.remove(registration.id, {
+          headers
+        })
+        if (currentPayment.value?.registration) {
+          currentPayment.value.registration = currentPayment.value.registration.filter(
+            (r) => r.id !== registration.id
+          )
+        }
+        toast.add({
+          closable: true,
+          life: 5000,
+          summary: 'Suppression OK',
+          severity: 'success',
+          detail: "L'inscription a bien été supprimée."
+        })
+      } catch (e) {
+        console.error(e)
+        toast.add({
+          closable: true,
+          life: 5000,
+          summary: 'Suppression NOK',
+          severity: 'error',
+          detail: "L'inscription n'a pas pu être supprimée...."
+        })
+      }
+    }
+  })
+}
+
+/**
+ * Per-registration edit mode.
+ * A registration is displayed read-only by default ; clicking "Modifier"
+ * switches it to an editable form, and "Enregistrer" persists & exits.
+ * "Annuler" restores the snapshot taken when edit started.
+ */
+const editingRegistrations = ref<Record<string, boolean>>({})
+const registrationSnapshots = ref<Record<string, MsRegistration>>({})
+
+function startEditRegistration(registration: MsRegistration) {
+  registrationSnapshots.value[registration.id] = JSON.parse(JSON.stringify(registration))
+  editingRegistrations.value[registration.id] = true
+}
+
+function cancelEditRegistration(registration: MsRegistration) {
+  const snapshot = registrationSnapshots.value[registration.id]
+  if (snapshot) Object.assign(registration, snapshot)
+  editingRegistrations.value[registration.id] = false
+  delete registrationSnapshots.value[registration.id]
+}
+
+async function saveEditRegistration(registration: MsRegistration) {
+  const ok = await onSaveRegistration(registration)
+  if (ok) {
+    editingRegistrations.value[registration.id] = false
+    delete registrationSnapshots.value[registration.id]
+  }
+}
+
+/**
+ * Le prix final est dérivé du prix et de la réduction (en %).
+ * Recalculé à chaque modification de l'un des deux.
+ */
+function recomputeFinalPrice(registration: MsRegistration) {
+  const price = registration.price ?? 0
+  const discount = registration.discount ?? 0
+  registration.final_price = Math.round(price * (1 - discount / 100) * 100) / 100
+}
+
+/**
+ * Birthdays are stored as ISO strings (2012-06-27T00:00:00.000Z).
+ * - formatBirthday : display in fr-FR for read-only mode
+ * - toDateInput : YYYY-MM-DD expected by a native date input
+ * - onBirthdayInput : write the picked date back on the person
+ */
+function formatBirthday(value?: string) {
+  if (!value) return '—'
+  try {
+    return format(new Date(value), 'dd/MM/yyyy')
+  } catch {
+    return value
+  }
+}
+
+function toDateInput(value?: string) {
+  return value ? value.slice(0, 10) : ''
+}
+
+function onBirthdayInput(registration: MsRegistration, value: unknown) {
+  if (registration.membership_person) {
+    registration.membership_person.birthday = (value as string) || ''
+  }
+}
+
+/**
  * On mounted, try to load memberships,
  * according router query params
  */
@@ -276,6 +511,7 @@ watch(() => filters, findPayments, { deep: true })
 </script>
 
 <template>
+  <confirm-dialog />
   <header class="bg-white border-b p-2 md:p-4">
     <h1 class="text-3xl leading-8 font-medium">État des paiements</h1>
   </header>
@@ -286,7 +522,7 @@ watch(() => filters, findPayments, { deep: true })
     >
       <!-- affichage des inscriptions avec moteur de recherche et tri ? -->
       <div class="flex flex-col gap-1">
-        <label for="search" class=" text-sm"> Recherche libre </label>
+        <label for="search" class="text-sm"> Recherche libre </label>
         <prime-input-text
           v-model="filters.search"
           id="search"
@@ -298,7 +534,7 @@ watch(() => filters, findPayments, { deep: true })
       </div>
 
       <div class="flex flex-col gap-1">
-        <label for="search" class=" text-sm"> Saison </label>
+        <label for="search" class="text-sm"> Saison </label>
         <select v-model="filters.season" class="rounded border p-1 bg-white">
           <option selected :value="null">Sélectionner une saison</option>
           <option v-for="season in glossaries.seasons" :key="season.slug" :value="season.id">
@@ -308,14 +544,10 @@ watch(() => filters, findPayments, { deep: true })
       </div>
       <div class="flex gap-2">
         <div class="w-1/2 flex flex-col gap-1">
-          <label for="search" class=" text-sm"> État </label>
+          <label for="search" class="text-sm"> État </label>
           <select v-model="filters.status" class="rounded border p-1 bg-white">
             <option selected :value="null">Sélectionner un état de paiement</option>
-            <option
-              v-for="status in glossaries.status"
-              :key="status.slug"
-              :value="status.id"
-            >
+            <option v-for="status in glossaries.status" :key="status.slug" :value="status.id">
               {{ status.name }}
             </option>
           </select>
@@ -324,11 +556,7 @@ watch(() => filters, findPayments, { deep: true })
 
       <div class="mt-1 leading-6 text-muted-color">{{ payments.total }} élèves</div>
 
-      <prime-paginator
-        :rows="payments.limit"
-        :total-records="payments.total"
-        @page="onPage"
-      />
+      <prime-paginator :rows="payments.limit" :total-records="payments.total" @page="onPage" />
 
       <div class="grow overflow-auto">
         <div
@@ -383,7 +611,7 @@ watch(() => filters, findPayments, { deep: true })
           </div>
         </header>
 
-        <h2 class="text-2xl ">Fiche de renseignements</h2>
+        <h2 class="text-2xl">Fiche de renseignements</h2>
         <section class="border rounded-lg bg-white p-4 my-4 flex flex-col gap-2 items-center">
           <div class="flex flex-wrap gap-4">
             <div class="flex flex-col gap-2 mb-4">
@@ -421,15 +649,10 @@ watch(() => filters, findPayments, { deep: true })
           <prime-button @click="onSaveMembership"> Enregistrer </prime-button>
         </section>
 
-        <h2 class="text-2xl my-2 flex items-center">
-          Adhésion
-        </h2>
+        <h2 class="text-2xl my-2 flex items-center">Adhésion</h2>
 
         <section class="my-4">
-          <div
-            :key="currentPayment.id"
-            class="border rounded-lg bg-white p-4 p-2 md:p-4 mb-2"
-          >
+          <div :key="currentPayment.id" class="border rounded-lg bg-white p-4 p-2 md:p-4 mb-2">
             <div class="w-full">
               Enregistré le
               {{ currentPayment.created_at }}
@@ -512,110 +735,314 @@ watch(() => filters, findPayments, { deep: true })
               </div>
 
               <h3 class="text-xl my-4">Inscriptions</h3>
-              <div class="flex flex-col gap-1">
-                <div
+              <div class="flex flex-col gap-3">
+                <article
                   v-for="registration in currentPayment.registration"
                   :key="registration.id"
-                  class="p-3 border rounded-lg"
-                  :class="{
-                    'bg-orange-200': registration.cancelled
-                  }"
+                  class="border rounded-xl p-4 transition-colors"
+                  :class="
+                    registration.cancelled
+                      ? 'bg-orange-50 border-orange-200'
+                      : editingRegistrations[registration.id]
+                        ? 'bg-primary-50/40 border-primary-300'
+                        : 'bg-white hover:shadow-sm'
+                  "
                 >
-                  <div class="flex justify-between items-center mb-2">
-                    <h2 class="text-2xl text-primary">
-                      {{ registration.membership_person?.lastname }}
-                      {{ registration.membership_person?.firstname }}
-                    </h2>
-                  </div>
+                  <!-- Header : identity + actions -->
+                  <header class="flex justify-between items-start gap-3 mb-3 flex-wrap">
+                    <div>
+                      <h4 class="text-xl font-semibold text-primary leading-tight">
+                        {{ registration.membership_person?.firstname }}
+                        {{ registration.membership_person?.lastname }}
+                      </h4>
+                      <p class="text-sm text-muted-color">
+                        {{
+                          glossaryState.courses[registration.activity_course_id]?.name ||
+                          'Cours non renseigné'
+                        }}
+                        <template
+                          v-if="
+                            registration.activity_instrument_id &&
+                            glossaryState.instruments[registration.activity_instrument_id]
+                          "
+                        >
+                          · {{ glossaryState.instruments[registration.activity_instrument_id].name }}
+                        </template>
+                      </p>
+                    </div>
+                    <div class="flex gap-2 shrink-0">
+                      <template v-if="!editingRegistrations[registration.id]">
+                        <prime-button
+                          size="small"
+                          outlined
+                          icon="pi pi-pencil"
+                          label="Modifier"
+                          @click="startEditRegistration(registration)"
+                        />
+                        <prime-button
+                          size="small"
+                          severity="danger"
+                          outlined
+                          icon="pi pi-trash"
+                          aria-label="Supprimer l'inscription"
+                          @click="onDeleteRegistration(registration)"
+                        />
+                      </template>
+                      <template v-else>
+                        <prime-button
+                          size="small"
+                          severity="secondary"
+                          text
+                          label="Annuler"
+                          @click="cancelEditRegistration(registration)"
+                        />
+                        <prime-button
+                          size="small"
+                          icon="pi pi-check"
+                          label="Enregistrer"
+                          @click="saveEditRegistration(registration)"
+                        />
+                      </template>
+                    </div>
+                  </header>
 
                   <section
                     v-if="registration.cancelled"
-                    class="font-semibold w-full text-center text-lg my-2"
+                    class="font-semibold w-full text-center text-orange-700 my-2"
                   >
                     Annulée le {{ registration.cancelation_date }} pour motif
                     {{ registration.cancelation_reason }}
                   </section>
 
-                  <div class="flex flex-col gap-2 items-center w-full">
-                    <div class="flex gap-2 w-full">
-                      <div class="grow">
-                        <span class="font-semibold">Informations :</span><br />
+                  <!-- READ-ONLY MODE -->
+                  <template v-if="!editingRegistrations[registration.id]">
+                    <dl
+                      class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-3 text-sm"
+                    >
+                      <div>
+                        <dt class="text-muted-color">Date de naissance</dt>
+                        <dd class="font-medium">
+                          {{ formatBirthday(registration.membership_person?.birthday) }}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt class="text-muted-color">Formation musicale</dt>
+                        <dd class="font-medium">
+                          {{ teachYearLabel(registration.activity_teach_year) }}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt class="text-muted-color">Livret FM</dt>
+                        <dd class="font-medium">
+                          {{ registration.activity_want_music_book ? 'Oui' : 'Non' }}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt class="text-muted-color">Prix selon QF</dt>
+                        <dd class="font-medium">{{ registration.price ?? '—' }} €</dd>
+                      </div>
+                      <div>
+                        <dt class="text-muted-color">Réduction</dt>
+                        <dd class="font-medium">{{ registration.discount ?? 0 }} %</dd>
+                      </div>
+                      <div>
+                        <dt class="text-muted-color">Prix final</dt>
+                        <dd class="font-semibold text-primary">
+                          {{ registration.final_price ?? '—' }} €
+                        </dd>
+                      </div>
+                      <div class="col-span-2">
+                        <dt class="text-muted-color">Ateliers</dt>
+                        <dd class="font-medium">
+                          <template
+                            v-if="
+                              registration.workshop_choice_1 ||
+                              registration.workshop_choice_2 ||
+                              registration.workshop_choice_3
+                            "
+                          >
+                            <div v-if="registration.workshop_choice_1">
+                              {{ workshopLabel(registration.workshop_choice_1) }}
+                            </div>
+                            <div v-if="registration.workshop_choice_2">
+                              {{ workshopLabel(registration.workshop_choice_2) }}
+                            </div>
+                            <div v-if="registration.workshop_choice_3">
+                              {{ workshopLabel(registration.workshop_choice_3) }}
+                            </div>
+                          </template>
+                          <template v-else>—</template>
+                        </dd>
+                      </div>
+                    </dl>
+                    <div class="mt-3 text-sm">
+                      <span class="text-muted-color">Informations</span>
+                      <p class="whitespace-pre-line">{{ registration.information || '—' }}</p>
+                    </div>
+                  </template>
 
+                  <!-- EDIT MODE -->
+                  <template v-else>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      <template v-if="registration.membership_person">
+                        <div class="flex flex-col gap-1">
+                          <label class="font-semibold text-sm">NOM</label>
+                          <prime-input-text
+                            v-model="registration.membership_person.lastname"
+                            autocomplete="off"
+                          />
+                        </div>
+                        <div class="flex flex-col gap-1">
+                          <label class="font-semibold text-sm">Prénom</label>
+                          <prime-input-text
+                            v-model="registration.membership_person.firstname"
+                            autocomplete="off"
+                          />
+                        </div>
+                        <div class="flex flex-col gap-1">
+                          <label class="font-semibold text-sm">Date de naissance</label>
+                          <prime-input-text
+                            type="date"
+                            :model-value="toDateInput(registration.membership_person.birthday)"
+                            @update:model-value="onBirthdayInput(registration, $event)"
+                          />
+                        </div>
+                      </template>
+
+                      <div class="flex flex-col gap-1">
+                        <label class="font-semibold text-sm">Cours</label>
+                        <prime-select
+                          v-model="registration.activity_course_id"
+                          :options="courseOptions"
+                          option-label="name"
+                          option-value="id"
+                          filter
+                          placeholder="Choisir un cours"
+                        />
+                      </div>
+                      <div class="flex flex-col gap-1">
+                        <label class="font-semibold text-sm">Instrument</label>
+                        <prime-select
+                          v-model="registration.activity_instrument_id"
+                          :options="instrumentOptions"
+                          option-label="name"
+                          option-value="id"
+                          filter
+                          show-clear
+                          placeholder="Choisir un instrument"
+                        />
+                      </div>
+                      <div class="flex flex-col gap-1">
+                        <label class="font-semibold text-sm">Formation musicale (année)</label>
+                        <prime-select
+                          v-model="registration.activity_teach_year"
+                          :options="teachYearOptions"
+                          option-label="label"
+                          option-value="value"
+                          show-clear
+                          placeholder="Choisir une année"
+                        />
+                      </div>
+
+                      <div class="flex flex-col gap-1">
+                        <label class="font-semibold text-sm">Prix selon QF</label>
+                        <prime-input-number
+                          v-model="registration.price"
+                          mode="currency"
+                          currency="EUR"
+                          locale="fr-FR"
+                          @update:model-value="recomputeFinalPrice(registration)"
+                        />
+                      </div>
+                      <div class="flex flex-col gap-1">
+                        <label class="font-semibold text-sm">Réduction (%)</label>
+                        <prime-input-number
+                          v-model="registration.discount"
+                          suffix=" %"
+                          @update:model-value="recomputeFinalPrice(registration)"
+                        />
+                      </div>
+                      <div class="flex flex-col gap-1">
+                        <label class="font-semibold text-sm">Prix final (calculé)</label>
+                        <prime-input-number
+                          v-model="registration.final_price"
+                          mode="currency"
+                          currency="EUR"
+                          locale="fr-FR"
+                          disabled
+                        />
+                      </div>
+
+                      <div class="flex flex-col gap-1 md:col-span-2 lg:col-span-1">
+                        <label class="font-semibold text-sm">Ateliers</label>
+                        <prime-select
+                          v-model="registration.workshop_choice_1"
+                          :options="workshopOptions"
+                          option-label="label"
+                          option-value="value"
+                          filter
+                          show-clear
+                          placeholder="Choix 1"
+                        />
+                        <prime-select
+                          v-model="registration.workshop_choice_2"
+                          :options="workshopOptions"
+                          option-label="label"
+                          option-value="value"
+                          filter
+                          show-clear
+                          placeholder="Choix 2"
+                        />
+                        <prime-select
+                          v-model="registration.workshop_choice_3"
+                          :options="workshopOptions"
+                          option-label="label"
+                          option-value="value"
+                          filter
+                          show-clear
+                          placeholder="Choix 3"
+                        />
+                      </div>
+
+                      <label class="flex items-center gap-2 self-end">
+                        <input type="checkbox" v-model="registration.activity_want_music_book" />
+                        <span>Souhaite le livret FM</span>
+                      </label>
+
+                      <div class="flex flex-col gap-1 md:col-span-2 lg:col-span-3">
+                        <label class="font-semibold text-sm">Informations</label>
                         <textarea
-                          class="w-full border rounded p-2 h-32"
+                          class="w-full border rounded p-2 h-24"
                           v-model="registration.information"
                         ></textarea>
                       </div>
-
-                      <div class="w-full lg:w-1/5">
-                        <div v-if="glossaryState.courses[registration.activity_course_id]">
-                          <span class="font-semibold">Cours :</span>
-                          {{ glossaryState.courses[registration.activity_course_id].name }}
-                        </div>
-                        <div
-                          v-if="registration.activity_instrument_id && glossaryState.instruments[registration.activity_instrument_id]"
-                        >
-                          <span class="font-semibold">Instrument :</span>
-                          {{
-                            glossaryState.instruments[registration.activity_instrument_id]?.name
-                          }}
-                        </div>
-
-                        <div v-if="glossaryState.courses[registration.activity_course_id]">
-                          <span class="font-semibold">Tranche 1 :</span>
-                          {{
-                            glossaryState.courses[registration.activity_course_id].price_quotient1
-                          }}
-                          €
-                          <br />
-                          <span class="font-semibold">Tranche 2 :</span>
-                          {{
-                            glossaryState.courses[registration.activity_course_id].price_quotient2
-                          }}
-                          €
-                          <br />
-                          <span class="font-semibold">Tranche 3 :</span>
-                          {{
-                            glossaryState.courses[registration.activity_course_id].price_quotient3
-                          }}
-                          €
-                          <br />
-                          <span class="font-semibold">Tranche 4 :</span>
-                          {{
-                            glossaryState.courses[registration.activity_course_id].price_quotient4
-                          }}
-                          €
-                        </div>
-                      </div>
-
-                      <div class="w-full lg:w-1/5">
-                        <span class="font-semibold">Prix selon QF :</span>
-                        {{ registration.price }} €
-                        <br />
-                        <span class="font-semibold">Réduction :</span>
-                        {{ registration.discount }} %
-                        <br />
-                        <span class="font-semibold">Prix final :</span>
-                        {{ registration.final_price }} €
-                      </div>
-                      <div class="w-full lg:w-1/5">
-                        <span class="font-semibold">Ateliers</span>
-                        <div>{{ registration.workshop_choice_1 }}</div>
-                        <div>{{ registration.workshop_choice_2 }}</div>
-                        <div>{{ registration.workshop_choice_3 }}</div>
-
-                        <input
-                          type="checkbox"
-                          v-model="registration.activity_want_music_book"
-                          class="mr-2"
-                        />
-                        <span>souhaite le livret FM</span>
-                        (année {{ registration.activity_teach_year }})
-                        <br />
-                      </div>
                     </div>
-                  </div>
-                </div>
+
+                    <!-- Tarifs de référence du cours -->
+                    <div
+                      v-if="glossaryState.courses[registration.activity_course_id]"
+                      class="mt-3 pt-3 border-t text-xs text-muted-color flex flex-wrap gap-x-4 gap-y-1"
+                    >
+                      <span class="font-semibold">Tarifs du cours :</span>
+                      <span>
+                        T1 :
+                        {{ glossaryState.courses[registration.activity_course_id].price_quotient1 }} €
+                      </span>
+                      <span>
+                        T2 :
+                        {{ glossaryState.courses[registration.activity_course_id].price_quotient2 }} €
+                      </span>
+                      <span>
+                        T3 :
+                        {{ glossaryState.courses[registration.activity_course_id].price_quotient3 }} €
+                      </span>
+                      <span>
+                        T4 :
+                        {{ glossaryState.courses[registration.activity_course_id].price_quotient4 }} €
+                      </span>
+                    </div>
+                  </template>
+                </article>
               </div>
 
               <h3 class="text-xl my-4">Paiements</h3>
@@ -661,11 +1088,7 @@ watch(() => filters, findPayments, { deep: true })
                     />
 
                     <select v-model="data[field]" v-else-if="f.input === 'single-data'">
-                      <option
-                        v-for="choice in f.values"
-                        :key="choice.value"
-                        :value="choice.value"
-                      >
+                      <option v-for="choice in f.values" :key="choice.value" :value="choice.value">
                         {{ choice.label['fr-FR'] }}
                       </option>
                     </select>
@@ -688,7 +1111,7 @@ watch(() => filters, findPayments, { deep: true })
             </div>
           </div>
         </section>
-          <!--
+        <!--
         <div
           class="flex rounded-md p-2 flex-wrap"
           :class="{

@@ -7,6 +7,7 @@ import * as Sentry from '@sentry/vue'
 
 import { setupLckDesignSystem } from '@locokit/designsystem'
 import ToastService from 'primevue/toastservice'
+import ConfirmationService from 'primevue/confirmationservice'
 
 import App from './App.vue'
 import { router } from './router'
@@ -48,6 +49,7 @@ async function boot() {
   setupLckDesignSystem(app)
   app.use(router)
   app.use(ToastService)
+  app.use(ConfirmationService)
 
   /**
    * Code needed for focus directive in PrimeVue
