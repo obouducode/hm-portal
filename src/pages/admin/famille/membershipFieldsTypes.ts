@@ -577,7 +577,10 @@ export const paymentStepFields = [
       'en-EN': ''
     },
     name: 'planned_receipt_date',
-    input: 'date'
+    input: 'date',
+    rules: {
+      required: true
+    }
   },
   {
     label: {
@@ -589,6 +592,9 @@ export const paymentStepFields = [
       'en-EN': ''
     },
     name: 'receipt_date',
-    input: 'date'
+    input: 'date',
+    rules: {
+      required: true
+    }
   }
 ]

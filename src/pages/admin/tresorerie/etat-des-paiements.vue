@@ -281,43 +281,96 @@ async function onSaveMembership() {
 
 async function onRowEditSave(event) {
   const { id, amount, information, method, planned_receipt_date, receipt_date } = event.newData
-  console.log(id, information, method, planned_receipt_date, receipt_date)
-  await lckWorkspaceHM.tables.paymentStep.record.patch(
-    id,
-    {
-      amount,
-      information,
-      method,
-      planned_receipt_date,
-      receipt_date
-    },
-    {
-      headers
-    }
-  )
-}
-async function addPaymentStep(paymentId: string, values) {
-  console.log('addPaymentStep', paymentId, values)
-  await lckWorkspaceHM.tables.paymentStep.record.create(
-    {
-      payment_id: paymentId,
-      ...values
-    },
-    {
-      headers
-    }
-  )
-  const paymentStepsResult = await lckWorkspaceHM.tables.paymentStep.record.find({
-    query: {
-      payment_id: paymentId
-    },
-    headers
-  })
   /**
-   * mise à jour des steps dans l'adhésion courante
+   * Les deux dates (prévue + encaissement) sont obligatoires.
+   * Si l'une manque, on ne sauvegarde pas : on réinjecte les saisies dans
+   * la ligne pour ne rien perdre et on la rouvre en édition.
    */
-  // const currentAdhesion = currentPayment.value.find((p) => p.id === paymentId)
-  currentPayment!.value!.payment_step = paymentStepsResult.data
+  if (!planned_receipt_date || !receipt_date) {
+    const row = currentPayment.value?.payment_step?.find((s) => s.id === id)
+    if (row) Object.assign(row, event.newData)
+    editingRows.value = [row ?? event.newData]
+    toast.add({
+      closable: true,
+      life: 8000,
+      summary: 'Dates obligatoires',
+      severity: 'warn',
+      detail: "La date prévue et la date d'encaissement sont obligatoires."
+    })
+    return
+  }
+  try {
+    await lckWorkspaceHM.tables.paymentStep.record.patch(
+      id,
+      {
+        amount,
+        information,
+        method,
+        planned_receipt_date,
+        receipt_date
+      },
+      {
+        headers
+      }
+    )
+    toast.add({
+      closable: true,
+      life: 5000,
+      summary: 'Mise à jour OK',
+      severity: 'success',
+      detail: 'Le paiement a bien été mis à jour.'
+    })
+  } catch (e) {
+    console.error(e)
+    toast.add({
+      closable: true,
+      life: 8000,
+      summary: 'Mise à jour NOK',
+      severity: 'error',
+      detail: "Le paiement n'a pas pu être mis à jour...."
+    })
+  }
+}
+async function addPaymentStep(paymentId: string, values): Promise<boolean> {
+  try {
+    await lckWorkspaceHM.tables.paymentStep.record.create(
+      {
+        payment_id: paymentId,
+        ...values
+      },
+      {
+        headers
+      }
+    )
+    const paymentStepsResult = await lckWorkspaceHM.tables.paymentStep.record.find({
+      query: {
+        payment_id: paymentId
+      },
+      headers
+    })
+    /**
+     * mise à jour des steps dans l'adhésion courante
+     */
+    currentPayment!.value!.payment_step = paymentStepsResult.data
+    toast.add({
+      closable: true,
+      life: 5000,
+      summary: 'Ajout OK',
+      severity: 'success',
+      detail: 'Le paiement a bien été ajouté.'
+    })
+    return true
+  } catch (e) {
+    console.error(e)
+    toast.add({
+      closable: true,
+      life: 8000,
+      summary: 'Ajout NOK',
+      severity: 'error',
+      detail: "Le paiement n'a pas pu être ajouté...."
+    })
+    return false
+  }
 }
 
 /**
@@ -491,6 +544,138 @@ function onBirthdayInput(registration: MsRegistration, value: unknown) {
   if (registration.membership_person) {
     registration.membership_person.birthday = (value as string) || ''
   }
+}
+
+/**
+ * ----- Paiements : affichage, statuts & synthèse -----
+ */
+
+/** Formatage monétaire fr-FR (1,00 €). */
+const euroFormatter = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' })
+function formatEuro(value?: number | null) {
+  return euroFormatter.format(value ?? 0)
+}
+
+/** Formatage de date générique (dd/MM/yyyy), tolérant aux valeurs vides. */
+function formatDate(value?: string) {
+  if (!value) return '—'
+  try {
+    return format(new Date(value), 'dd/MM/yyyy')
+  } catch {
+    return value
+  }
+}
+
+/**
+ * Moyens de paiement : libellé fr-FR + sévérité de tag,
+ * dérivés du champ `method` de paymentStepFields.
+ */
+const paymentMethodValues =
+  paymentStepFields.find((f) => f.name === 'method')?.values ?? []
+const methodLabelByValue = Object.fromEntries(
+  paymentMethodValues.map((v) => [v.value, v.label['fr-FR']])
+)
+function methodLabel(value?: string) {
+  if (!value) return '—'
+  return methodLabelByValue[value] ?? value
+}
+const methodSeverity: Record<string, string> = {
+  checkbook: 'info',
+  cash: 'success',
+  helloasso: 'warn',
+  'holiday check': 'secondary',
+  autre: 'contrast'
+}
+
+/**
+ * Statut d'une étape de paiement :
+ * - Encaissé : une date d'encaissement réelle existe
+ * - En retard : encaissement prévu dans le passé, mais non encaissé
+ * - Prévu : encaissement prévu dans le futur
+ * - À planifier : ni date prévue ni encaissement
+ */
+function stepStatus(step: MsPaymentStep) {
+  if (step.receipt_date)
+    return { label: 'Encaissé', severity: 'success', icon: 'pi pi-check' }
+  if (step.planned_receipt_date) {
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    if (new Date(step.planned_receipt_date) < today)
+      return { label: 'En retard', severity: 'danger', icon: 'pi pi-exclamation-triangle' }
+    return { label: 'Prévu', severity: 'warn', icon: 'pi pi-clock' }
+  }
+  return { label: 'À planifier', severity: 'secondary', icon: 'pi pi-question-circle' }
+}
+
+/**
+ * Synthèse financière de l'adhésion courante :
+ * dû (total_amount), encaissé, à venir (prévu non encaissé),
+ * reste à payer et pourcentage encaissé pour la barre de progression.
+ */
+/** Coercition numérique : les montants peuvent arriver en chaîne depuis l'API,
+ *  ce qui provoquerait une concaténation au lieu d'une somme. On garde les
+ *  décimales (centimes), d'où Number() plutôt que parseInt. */
+function toNumber(value: unknown): number {
+  const n = Number(value)
+  return Number.isFinite(n) ? n : 0
+}
+
+const paymentSummary = computed(() => {
+  const steps = currentPayment.value?.payment_step ?? []
+  const due = toNumber(currentPayment.value?.total_amount)
+  let received = 0
+  let planned = 0
+  for (const s of steps) {
+    const amount = toNumber(s.amount)
+    if (s.receipt_date) received += amount
+    else planned += amount
+  }
+  const remaining = Math.round((due - received) * 100) / 100
+  const progress = due > 0 ? Math.min(100, Math.round((received / due) * 100)) : 0
+  return { due, received, planned, remaining, progress }
+})
+
+/**
+ * Encaissement : écriture d'une date dans une étape de paiement.
+ * Les dates sont stockées en ISO (2026-09-01T00:00:00.000Z) mais un input
+ * `type=date` natif attend YYYY-MM-DD — on convertit en lecture (toDateInput)
+ * et on réécrit la valeur brute du picker (ou null si vidée).
+ */
+function onStepDateInput(step: Record<string, any>, fieldName: string, value: unknown) {
+  step[fieldName] = (value as string) || null
+}
+
+/**
+ * Formulaire d'ajout d'un paiement, replié par défaut.
+ * `addPaymentInitialData` permet de pré-remplir le formulaire (duplication) ;
+ * `addFormKey` force un remontage du data-form pour repartir d'un état propre.
+ */
+const showAddPayment = ref(false)
+const addPaymentInitialData = ref<Record<string, any>>({})
+const addFormKey = ref(0)
+
+function openAddPayment(initial: Record<string, any> = {}) {
+  addPaymentInitialData.value = initial
+  addFormKey.value++
+  showAddPayment.value = true
+}
+
+/**
+ * Duplique une étape de paiement : on reprend les saisies récurrentes
+ * (moyen, montant, information) et on laisse les dates vides, puisqu'elles
+ * changent à chaque échéance. L'utilisateur ajuste puis valide.
+ */
+function duplicatePaymentStep(step: MsPaymentStep) {
+  openAddPayment({
+    method: step.method,
+    amount: step.amount,
+    information: step.information
+  })
+}
+
+async function onAddPaymentStep(paymentId: string, values: unknown) {
+  const ok = await addPaymentStep(paymentId, values)
+  if (ok) showAddPayment.value = false
 }
 
 /**
@@ -1046,6 +1231,51 @@ watch(() => filters, findPayments, { deep: true })
               </div>
 
               <h3 class="text-xl my-4">Paiements</h3>
+
+              <!-- Synthèse financière -->
+              <div class="rounded-lg border bg-slate-50 p-4 mb-4">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div>
+                    <div class="text-sm text-muted-color">Dû</div>
+                    <div class="text-xl font-semibold">
+                      {{ formatEuro(paymentSummary.due) }}
+                    </div>
+                  </div>
+                  <div>
+                    <div class="text-sm text-muted-color">Encaissé</div>
+                    <div class="text-xl font-semibold text-green-700">
+                      {{ formatEuro(paymentSummary.received) }}
+                    </div>
+                  </div>
+                  <div>
+                    <div class="text-sm text-muted-color">À venir</div>
+                    <div class="text-xl font-semibold text-amber-600">
+                      {{ formatEuro(paymentSummary.planned) }}
+                    </div>
+                  </div>
+                  <div>
+                    <div class="text-sm text-muted-color">Reste à payer</div>
+                    <div
+                      class="text-xl font-semibold"
+                      :class="paymentSummary.remaining <= 0 ? 'text-green-700' : 'text-red-600'"
+                    >
+                      {{ formatEuro(paymentSummary.remaining) }}
+                    </div>
+                  </div>
+                </div>
+                <div class="mt-4">
+                  <div class="h-2 w-full rounded-full bg-slate-200 overflow-hidden">
+                    <div
+                      class="h-full bg-green-500 transition-all duration-300"
+                      :style="{ width: paymentSummary.progress + '%' }"
+                    ></div>
+                  </div>
+                  <div class="mt-1 text-sm text-muted-color">
+                    {{ paymentSummary.progress }} % encaissé
+                  </div>
+                </div>
+              </div>
+
               <prime-datatable
                 :value="currentPayment.payment_step"
                 v-model:editingRows="editingRows"
@@ -1053,7 +1283,6 @@ watch(() => filters, findPayments, { deep: true })
                 editMode="row"
                 dataKey="id"
                 :pt="{
-                  table: { style: 'min-width: 50rem' },
                   column: {
                     bodycell: ({ state }) => ({
                       style: state['d_editing'] && 'padding-top: 0.75rem; padding-bottom: 0.75rem'
@@ -1067,6 +1296,21 @@ watch(() => filters, findPayments, { deep: true })
                   :field="f.name"
                   :header="f.label['fr-FR']"
                 >
+                  <template #body="{ data }">
+                    <prime-tag
+                      v-if="f.name === 'method'"
+                      :value="methodLabel(data[f.name])"
+                      :severity="methodSeverity[data[f.name]] ?? 'secondary'"
+                    />
+                    <template v-else-if="f.input === 'date'">
+                      {{ formatDate(data[f.name]) }}
+                    </template>
+                    <span v-else-if="f.name === 'amount'" class="font-medium">
+                      {{ formatEuro(data[f.name]) }}
+                    </span>
+                    <template v-else>{{ data[f.name] || '—' }}</template>
+                  </template>
+
                   <template #editor="{ data, field }">
                     <prime-input-number
                       v-if="f.input === 'number'"
@@ -1083,8 +1327,9 @@ watch(() => filters, findPayments, { deep: true })
 
                     <prime-input-text
                       v-else-if="f.input === 'date'"
-                      v-model="data[field]"
                       type="date"
+                      :model-value="toDateInput(data[f.name])"
+                      @update:model-value="onStepDateInput(data, f.name, $event)"
                     />
 
                     <select v-model="data[field]" v-else-if="f.input === 'single-data'">
@@ -1094,20 +1339,76 @@ watch(() => filters, findPayments, { deep: true })
                     </select>
                   </template>
                 </prime-column>
+
+                <prime-column header="État">
+                  <template #body="{ data }">
+                    <prime-tag
+                      :value="stepStatus(data).label"
+                      :severity="stepStatus(data).severity"
+                      :icon="stepStatus(data).icon"
+                    />
+                  </template>
+                </prime-column>
+
                 <prime-column
                   :rowEditor="true"
                   style="width: 10%; min-width: 8rem"
                   bodyStyle="text-align:center"
                 >
                 </prime-column>
+
+                <prime-column style="width: 3rem" bodyStyle="text-align:center">
+                  <template #body="{ data }">
+                    <prime-button
+                      icon="pi pi-copy"
+                      text
+                      rounded
+                      size="small"
+                      severity="secondary"
+                      aria-label="Dupliquer ce paiement"
+                      title="Dupliquer ce paiement"
+                      @click="duplicatePaymentStep(data)"
+                    />
+                  </template>
+                </prime-column>
+
+                <template #empty>
+                  <div class="text-center text-muted-color py-4">
+                    Aucun paiement enregistré pour l'instant.
+                  </div>
+                </template>
               </prime-datatable>
 
-              <data-form
-                class="mt-4"
-                :step="{ fields: paymentStepFields }"
-                submit-button-label="Ajouter montant"
-                @submit="addPaymentStep(currentPayment.id, $event)"
-              />
+              <!-- Ajout d'un paiement (replié par défaut) -->
+              <div class="mt-4">
+                <prime-button
+                  v-if="!showAddPayment"
+                  icon="pi pi-plus"
+                  label="Ajouter un paiement"
+                  outlined
+                  @click="openAddPayment()"
+                />
+                <div v-else class="border rounded-lg bg-slate-50 p-4">
+                  <div class="flex items-center justify-between mb-3">
+                    <h4 class="font-semibold">Nouveau paiement</h4>
+                    <prime-button
+                      icon="pi pi-times"
+                      text
+                      rounded
+                      severity="secondary"
+                      aria-label="Fermer"
+                      @click="showAddPayment = false"
+                    />
+                  </div>
+                  <data-form
+                    :key="addFormKey"
+                    :step="{ fields: paymentStepFields }"
+                    :initial-data="addPaymentInitialData"
+                    submit-button-label="Ajouter montant"
+                    @submit="onAddPaymentStep(currentPayment.id, $event)"
+                  />
+                </div>
+              </div>
             </div>
           </div>
         </section>
