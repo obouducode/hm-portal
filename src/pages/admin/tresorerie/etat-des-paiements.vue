@@ -196,7 +196,8 @@ async function findPayment(id: string) {
   try {
     currentPayment.value = await lckWorkspaceHM.tables.payment.record.get(id, {
       query: {
-        $fetch: '[membership,registration.[membership_person],payment_step]'
+        $fetch:
+          '[membership.[membership_person],registration.[membership_person],payment_step]'
       },
       headers
     })
@@ -515,10 +516,161 @@ async function saveEditRegistration(registration: MsRegistration) {
  * Le prix final est dérivé du prix et de la réduction (en %).
  * Recalculé à chaque modification de l'un des deux.
  */
-function recomputeFinalPrice(registration: MsRegistration) {
+function recomputeFinalPrice(registration: {
+  price?: number
+  discount?: number
+  final_price?: number
+}) {
   const price = registration.price ?? 0
   const discount = registration.discount ?? 0
   registration.final_price = Math.round(price * (1 - discount / 100) * 100) / 100
+}
+
+/**
+ * Ajout direct d'une inscription sur l'adhésion courante.
+ * L'élève peut être un membre existant de la famille (réutilisation du
+ * membership_person pour éviter les doublons) ou un nouvel élève à créer.
+ * La saison est portée par le cours (activity_course), il n'y a donc rien
+ * à renseigner de plus côté inscription.
+ */
+const NEW_STUDENT = '__new__'
+const showAddRegistration = ref(false)
+const newRegistrationStudent = ref<string>('')
+
+function blankNewRegistration() {
+  return {
+    membership_person: { firstname: '', lastname: '', birthday: '' },
+    activity_course_id: '',
+    activity_instrument_id: undefined as string | undefined,
+    activity_teach_year: undefined as string | undefined,
+    activity_want_music_book: false,
+    workshop_choice_1: undefined as string | undefined,
+    workshop_choice_2: undefined as string | undefined,
+    workshop_choice_3: undefined as string | undefined,
+    information: '',
+    price: undefined as number | undefined,
+    discount: undefined as number | undefined,
+    final_price: undefined as number | undefined
+  }
+}
+const newRegistration = ref(blankNewRegistration())
+
+/** Élèves déjà rattachés à la famille (pour le sélecteur). */
+const familyStudents = computed(
+  () => currentPayment.value?.membership?.membership_person ?? []
+)
+const studentSelectOptions = computed(() => {
+  const existing = familyStudents.value.map((p) => ({
+    label: `${p.lastname ?? ''} ${p.firstname ?? ''}`.trim() || '(sans nom)',
+    value: p.id
+  }))
+  return [...existing, { label: '+ Nouvel élève', value: NEW_STUDENT }]
+})
+
+function openAddRegistration() {
+  newRegistration.value = blankNewRegistration()
+  newRegistrationStudent.value = ''
+  showAddRegistration.value = true
+}
+
+function cancelAddRegistration() {
+  showAddRegistration.value = false
+}
+
+async function saveNewRegistration() {
+  if (!currentPayment.value) return
+  const paymentId = currentPayment.value.id
+  const isNewStudent = newRegistrationStudent.value === NEW_STUDENT
+  const reg = newRegistration.value
+
+  // Validation minimale
+  if (!newRegistrationStudent.value) {
+    toast.add({
+      closable: true,
+      life: 6000,
+      severity: 'warn',
+      summary: 'Élève manquant',
+      detail: 'Merci de choisir un élève existant ou de créer un nouvel élève.'
+    })
+    return
+  }
+  if (
+    isNewStudent &&
+    (!reg.membership_person.firstname?.trim() || !reg.membership_person.lastname?.trim())
+  ) {
+    toast.add({
+      closable: true,
+      life: 6000,
+      severity: 'warn',
+      summary: 'Élève incomplet',
+      detail: 'Le nom et le prénom du nouvel élève sont obligatoires.'
+    })
+    return
+  }
+  if (!reg.activity_course_id) {
+    toast.add({
+      closable: true,
+      life: 6000,
+      severity: 'warn',
+      summary: 'Cours manquant',
+      detail: 'Merci de choisir un cours pour cette inscription.'
+    })
+    return
+  }
+
+  try {
+    let membershipPersonId = newRegistrationStudent.value
+    if (isNewStudent) {
+      const person = await lckWorkspaceHM.tables.membership_person.record.create(
+        {
+          membership_family_id: currentPayment.value.membership!.id,
+          firstname: reg.membership_person.firstname,
+          lastname: reg.membership_person.lastname,
+          birthday: toDateInput(reg.membership_person.birthday) || null
+        },
+        { headers }
+      )
+      membershipPersonId = person.id
+    }
+
+    await lckWorkspaceHM.tables.registration.record.create(
+      {
+        payment_id: paymentId,
+        membership_person_id: membershipPersonId,
+        activity_course_id: reg.activity_course_id,
+        activity_instrument_id: reg.activity_instrument_id,
+        activity_teach_year: reg.activity_teach_year,
+        activity_want_music_book: reg.activity_want_music_book,
+        workshop_choice_1: reg.workshop_choice_1,
+        workshop_choice_2: reg.workshop_choice_2,
+        workshop_choice_3: reg.workshop_choice_3,
+        information: reg.information,
+        price: reg.price,
+        discount: reg.discount,
+        final_price: reg.final_price
+      },
+      { headers }
+    )
+
+    toast.add({
+      closable: true,
+      life: 5000,
+      severity: 'success',
+      summary: 'Ajout OK',
+      detail: "L'inscription a bien été ajoutée."
+    })
+    showAddRegistration.value = false
+    await findPayment(paymentId)
+  } catch (e) {
+    console.error(e)
+    toast.add({
+      closable: true,
+      life: 8000,
+      severity: 'error',
+      summary: 'Ajout NOK',
+      detail: "L'inscription n'a pas pu être ajoutée...."
+    })
+  }
 }
 
 /**
@@ -919,7 +1071,200 @@ watch(() => filters, findPayments, { deep: true })
                 </prime-button>
               </div>
 
-              <h3 class="text-xl my-4">Inscriptions</h3>
+              <div class="flex items-center justify-between my-4">
+                <h3 class="text-xl">Inscriptions</h3>
+                <prime-button
+                  v-if="!showAddRegistration"
+                  size="small"
+                  icon="pi pi-plus"
+                  label="Ajouter"
+                  outlined
+                  @click="openAddRegistration()"
+                />
+              </div>
+
+              <!-- Formulaire d'ajout d'une inscription -->
+              <div
+                v-if="showAddRegistration"
+                class="border rounded-xl p-4 mb-3 bg-primary-50/40 border-primary-300"
+              >
+                <div class="flex items-center justify-between mb-3">
+                  <h4 class="text-lg font-semibold text-primary">Nouvelle inscription</h4>
+                  <prime-button
+                    icon="pi pi-times"
+                    text
+                    rounded
+                    severity="secondary"
+                    aria-label="Fermer"
+                    @click="cancelAddRegistration()"
+                  />
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div class="flex flex-col gap-1">
+                    <label class="font-semibold text-sm">Élève</label>
+                    <prime-select
+                      v-model="newRegistrationStudent"
+                      :options="studentSelectOptions"
+                      option-label="label"
+                      option-value="value"
+                      placeholder="Choisir un élève"
+                    />
+                  </div>
+
+                  <template v-if="newRegistrationStudent === '__new__'">
+                    <div class="flex flex-col gap-1">
+                      <label class="font-semibold text-sm">NOM</label>
+                      <prime-input-text
+                        v-model="newRegistration.membership_person.lastname"
+                        autocomplete="off"
+                      />
+                    </div>
+                    <div class="flex flex-col gap-1">
+                      <label class="font-semibold text-sm">Prénom</label>
+                      <prime-input-text
+                        v-model="newRegistration.membership_person.firstname"
+                        autocomplete="off"
+                      />
+                    </div>
+                    <div class="flex flex-col gap-1">
+                      <label class="font-semibold text-sm">Date de naissance</label>
+                      <prime-input-text
+                        type="date"
+                        :model-value="toDateInput(newRegistration.membership_person.birthday)"
+                        @update:model-value="
+                          newRegistration.membership_person.birthday = ($event as string) || ''
+                        "
+                      />
+                    </div>
+                  </template>
+
+                  <div class="flex flex-col gap-1">
+                    <label class="font-semibold text-sm">Cours</label>
+                    <prime-select
+                      v-model="newRegistration.activity_course_id"
+                      :options="courseOptions"
+                      option-label="name"
+                      option-value="id"
+                      filter
+                      placeholder="Choisir un cours"
+                    />
+                  </div>
+                  <div class="flex flex-col gap-1">
+                    <label class="font-semibold text-sm">Instrument</label>
+                    <prime-select
+                      v-model="newRegistration.activity_instrument_id"
+                      :options="instrumentOptions"
+                      option-label="name"
+                      option-value="id"
+                      filter
+                      show-clear
+                      placeholder="Choisir un instrument"
+                    />
+                  </div>
+                  <div class="flex flex-col gap-1">
+                    <label class="font-semibold text-sm">Formation musicale (année)</label>
+                    <prime-select
+                      v-model="newRegistration.activity_teach_year"
+                      :options="teachYearOptions"
+                      option-label="label"
+                      option-value="value"
+                      show-clear
+                      placeholder="Choisir une année"
+                    />
+                  </div>
+
+                  <div class="flex flex-col gap-1">
+                    <label class="font-semibold text-sm">Prix selon QF</label>
+                    <prime-input-number
+                      v-model="newRegistration.price"
+                      mode="currency"
+                      currency="EUR"
+                      locale="fr-FR"
+                      @update:model-value="recomputeFinalPrice(newRegistration)"
+                    />
+                  </div>
+                  <div class="flex flex-col gap-1">
+                    <label class="font-semibold text-sm">Réduction (%)</label>
+                    <prime-input-number
+                      v-model="newRegistration.discount"
+                      suffix=" %"
+                      @update:model-value="recomputeFinalPrice(newRegistration)"
+                    />
+                  </div>
+                  <div class="flex flex-col gap-1">
+                    <label class="font-semibold text-sm">Prix final (calculé)</label>
+                    <prime-input-number
+                      v-model="newRegistration.final_price"
+                      mode="currency"
+                      currency="EUR"
+                      locale="fr-FR"
+                      disabled
+                    />
+                  </div>
+
+                  <div class="flex flex-col gap-1 md:col-span-2 lg:col-span-1">
+                    <label class="font-semibold text-sm">Ateliers</label>
+                    <prime-select
+                      v-model="newRegistration.workshop_choice_1"
+                      :options="workshopOptions"
+                      option-label="label"
+                      option-value="value"
+                      filter
+                      show-clear
+                      placeholder="Choix 1"
+                    />
+                    <prime-select
+                      v-model="newRegistration.workshop_choice_2"
+                      :options="workshopOptions"
+                      option-label="label"
+                      option-value="value"
+                      filter
+                      show-clear
+                      placeholder="Choix 2"
+                    />
+                    <prime-select
+                      v-model="newRegistration.workshop_choice_3"
+                      :options="workshopOptions"
+                      option-label="label"
+                      option-value="value"
+                      filter
+                      show-clear
+                      placeholder="Choix 3"
+                    />
+                  </div>
+
+                  <label class="flex items-center gap-2 self-end">
+                    <input type="checkbox" v-model="newRegistration.activity_want_music_book" />
+                    <span>Souhaite le livret FM</span>
+                  </label>
+
+                  <div class="flex flex-col gap-1 md:col-span-2 lg:col-span-3">
+                    <label class="font-semibold text-sm">Informations</label>
+                    <textarea
+                      class="w-full border rounded p-2 h-24"
+                      v-model="newRegistration.information"
+                    ></textarea>
+                  </div>
+                </div>
+
+                <div class="flex justify-end gap-2 mt-4">
+                  <prime-button
+                    size="small"
+                    severity="secondary"
+                    text
+                    label="Annuler"
+                    @click="cancelAddRegistration()"
+                  />
+                  <prime-button
+                    size="small"
+                    icon="pi pi-check"
+                    label="Enregistrer l'inscription"
+                    @click="saveNewRegistration()"
+                  />
+                </div>
+              </div>
+
               <div class="flex flex-col gap-3">
                 <article
                   v-for="registration in currentPayment.registration"

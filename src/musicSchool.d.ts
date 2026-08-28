@@ -79,6 +79,7 @@ type MsActivityInstrument = MsGlossary
 
 type MsRegistration = {
   id: string
+  payment_id: string // link to the matching MsPayment
   membership_person_id: string
   membership_person?: MsMembershipPerson
   activity_course_id: string
