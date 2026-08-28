@@ -831,6 +831,51 @@ async function onAddPaymentStep(paymentId: string, values: unknown) {
 }
 
 /**
+ * Suppression définitive d'une étape de paiement,
+ * après confirmation de l'utilisateur.
+ *
+ * Utile lorsqu'un paiement a été saisi par erreur (doublon de duplication...).
+ */
+function onDeletePaymentStep(step: MsPaymentStep) {
+  confirm.require({
+    header: 'Supprimer le paiement',
+    message: `Voulez-vous vraiment supprimer définitivement ce paiement de ${formatEuro(step.amount)} (${methodLabel(step.method)}) ? Cette action est irréversible.`,
+    icon: 'pi pi-exclamation-triangle',
+    rejectLabel: 'Annuler',
+    acceptLabel: 'Supprimer',
+    acceptClass: 'p-button-danger',
+    accept: async () => {
+      try {
+        await lckWorkspaceHM.tables.paymentStep.record.remove(step.id, {
+          headers
+        })
+        if (currentPayment.value?.payment_step) {
+          currentPayment.value.payment_step = currentPayment.value.payment_step.filter(
+            (s) => s.id !== step.id
+          )
+        }
+        toast.add({
+          closable: true,
+          life: 5000,
+          summary: 'Suppression OK',
+          severity: 'success',
+          detail: 'Le paiement a bien été supprimé.'
+        })
+      } catch (e) {
+        console.error(e)
+        toast.add({
+          closable: true,
+          life: 8000,
+          summary: 'Suppression NOK',
+          severity: 'error',
+          detail: "Le paiement n'a pas pu être supprimé...."
+        })
+      }
+    }
+  })
+}
+
+/**
  * On mounted, try to load memberships,
  * according router query params
  */
@@ -1702,7 +1747,7 @@ watch(() => filters, findPayments, { deep: true })
                 >
                 </prime-column>
 
-                <prime-column style="width: 3rem" bodyStyle="text-align:center">
+                <prime-column style="width: 6rem" bodyStyle="text-align:center">
                   <template #body="{ data }">
                     <prime-button
                       icon="pi pi-copy"
@@ -1713,6 +1758,16 @@ watch(() => filters, findPayments, { deep: true })
                       aria-label="Dupliquer ce paiement"
                       title="Dupliquer ce paiement"
                       @click="duplicatePaymentStep(data)"
+                    />
+                    <prime-button
+                      icon="pi pi-trash"
+                      text
+                      rounded
+                      size="small"
+                      severity="danger"
+                      aria-label="Supprimer ce paiement"
+                      title="Supprimer ce paiement"
+                      @click="onDeletePaymentStep(data)"
                     />
                   </template>
                 </prime-column>

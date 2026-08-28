@@ -569,8 +569,8 @@ export const paymentStepFields = [
   },
   {
     label: {
-      'fr-FR': "Date prévue d'encaissement",
-      'en-EN': "Date prévue d'encaissement"
+      'fr-FR': 'Date du chèque',
+      'en-EN': 'Date du chèque'
     },
     description: {
       'fr-FR': '',
@@ -584,8 +584,8 @@ export const paymentStepFields = [
   },
   {
     label: {
-      'fr-FR': "Date d'encaissement",
-      'en-EN': "Date d'encaissement"
+      'fr-FR': "Date prévue d'encaissement",
+      'en-EN': "Date prévue d'encaissement"
     },
     description: {
       'fr-FR': '',
